@@ -696,7 +696,7 @@ const Index = () => {
                       </div>
 
               {/* Flashcard Container */}
-              <div className="flex-1 flex items-center justify-center overflow-hidden">
+              <div className="flex-1 flex items-center px-2 justify-center overflow-hidden">
                 {practiceCards.length > 0 ? (
                   <Flashcard 
                     key={practiceCards[currentCardIndex].id} 

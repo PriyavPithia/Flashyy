@@ -43,7 +43,7 @@ export function Flashcard({ question, answer, onSwipe, groupName, groupColor, di
           initial={{ 
             x: direction === "left" ? 1000 : -1000,
             opacity: 0,
-            scale: 0.5
+            scale: 0.8
           }}
           animate={{ 
             x: 0,
@@ -53,24 +53,31 @@ export function Flashcard({ question, answer, onSwipe, groupName, groupColor, di
           exit={{ 
             x: exitX,
             opacity: 0,
-            scale: 0.5,
-            transition: { duration: 0.2 }
+            scale: 0.8,
+            transition: { 
+              duration: 0.3,
+              ease: "easeOut"
+            }
           }}
           transition={{
             type: "spring",
-            stiffness: 300,
-            damping: 30,
-            opacity: { duration: 0.2 }
+            stiffness: 200,
+            damping: 25,
+            mass: 0.8,
+            opacity: { 
+              duration: 0.3
+            }
           }}
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.7}
+          dragElastic={0.9}
           onDragStart={() => setIsDragging(true)}
           onDragEnd={(e, info) => {
             setIsDragging(false);
             handleDragEnd(e, info);
           }}
           whileTap={{ cursor: "grabbing" }}
+          whileDrag={{ scale: 0.98 }}
         >
           <div 
             className={`w-full h-full transition-transform duration-500 transform-gpu preserve-3d ${isFlipped ? "rotate-y-180" : ""}`} 
@@ -80,7 +87,7 @@ export function Flashcard({ question, answer, onSwipe, groupName, groupColor, di
             <div className="absolute w-full h-full backface-hidden">
               <div 
                 style={{ backgroundColor: groupColor }} 
-                className="w-full h-full backdrop-blur-sm rounded-xl shadow-lg p-6 flex flex-col"
+                className="w-full h-full backdrop-blur-sm rounded-3xl shadow-lg p-6 flex flex-col"
               >
                 <span className="mb-4 text-center text-lg text-gray-500 font-medium">{groupName}</span>
                 <div className="flex-1 flex items-center justify-center">
