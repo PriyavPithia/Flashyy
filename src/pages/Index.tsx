@@ -487,8 +487,8 @@ const Index = () => {
               {/* Main content - Allow this to scroll */}
               <div className="flex-1 overflow-y-auto">
                 {/* Mobile buttons */}
-                <div className="md:hidden mt-4 mb-6">
-                  <div className="grid grid-cols-2 gap-4 px-4 max-w-sm mx-auto">
+                <div className="md:hidden mt-6 mb-7">
+                  <div className="grid grid-cols-2 gap-4  px-4 max-w-sm mx-auto">
                     <button
                       onClick={toggleMode}
                       className="flex flex-col items-center justify-center p-4 rounded-xl bg-white shadow-sm hover:shadow-md transition-all"
@@ -568,8 +568,9 @@ const Index = () => {
                 )}
 
                 {/* Cards grid */}
-                <div id="add-card-section" className="grid md:grid-cols-2 gap-6 ">
-            <div className="space-y-6">
+                <div id="add-card-section" className="grid md:grid-cols-2 gap-6">
+                  {/* Left column - Add form */}
+                  <div className="space-y-6">
                     {!selectedGroupId ? (
                       <div className="text-center py-8 bg-gray-50 rounded-lg">
                         <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -590,7 +591,8 @@ const Index = () => {
                     )}
                   </div>
 
-              <div className="space-y-4">
+                  {/* Right column - Cards list */}
+                  <div className="space-y-4">
                     <h2 className="text-xl font-semibold text-center mb-4">
                       {selectedGroupId 
                         ? `${groups.find(g => g.id === selectedGroupId)?.name} (${
@@ -599,88 +601,91 @@ const Index = () => {
                         : `All Flashcards (${cards.length})`
                       }
                     </h2>
-                    <div className="space-y-4 overflow-y-auto pr-4 custom-scrollbar">
-                      {(selectedGroupId 
-                        ? cards.filter(card => card.group_id === selectedGroupId)
-                        : cards
-                      ).map((card) => (
-                        <div 
-                          key={card.id} 
-                          className="rounded-xl shadow-md p-4 space-y-2 transition-all hover:shadow-lg"
-                          style={{
-                            backgroundColor: groups.find(g => g.id === card.group_id)?.color || GROUP_COLORS.softGray
-                          }}
-                        >
-                          <div className="flex items-center justify-between border-b border-gray-300 pb-2">
-                <div className="flex items-center gap-2">
-                              <div 
-                                className="w-2 h-2 rounded-full" 
-                                style={{ backgroundColor: groups.find(g => g.id === card.group_id)?.color || GROUP_COLORS.softGray }}
-                              />
-                              <EditableText
-                                value={groups.find(g => g.id === card.group_id)?.name || 'Ungrouped'}
-                                onSave={(newName) => groups.find(g => g.id === card.group_id) && updateGroup(card.group_id, { name: newName })}
-                                className="text-sm font-medium text-gray-700"
-                              />
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm"
-                                    className="h-8 w-8 p-0 hover:bg-black/5"
-                                  >
-                                    <Palette className="h-4 w-4" />
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-[270px]">
-                                  <div className="grid grid-cols-5 gap-[2px] p-1">
-                                    {Object.entries(GROUP_COLORS).map(([name, color]) => (
-                                      <div
-                                        key={color}
-                                        className={`w-9 h-9 rounded-md cursor-pointer transition-all ${
-                                          groups.find(g => g.id === card.group_id)?.color === color ? "ring-1 ring-black" : ""
-                                        }`}
-                                        style={{ backgroundColor: color }}
-                                        onClick={() => groups.find(g => g.id === card.group_id) && updateGroup(card.group_id, { color })}
-                                      />
-                                    ))}
-                                </div>
-                                </PopoverContent>
-                              </Popover>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                className="h-8 w-8 p-0 hover:bg-black/5"
-                                onClick={() => deleteCard(card.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="space-y-3">
-                            <div className="space-y-1">
-                              <label className="text-xs font-medium text-gray-500">Question</label>
-                              <EditableText
-                                value={card.question}
-                                onSave={(newQuestion) => updateCard(card.id, { question: newQuestion })}
-                                className="block w-full text-gray-900"
-                              />
+                    {/* Fixed height scrollable container */}
+                    <div className="h-[400px] overflow-y-auto pr-4 custom-scrollbar">
+                      <div className="space-y-4">
+                        {(selectedGroupId 
+                          ? cards.filter(card => card.group_id === selectedGroupId)
+                          : cards
+                        ).map((card) => (
+                          <div 
+                            key={card.id} 
+                            className="rounded-xl shadow-md p-4 space-y-2 transition-all hover:shadow-lg"
+                            style={{
+                              backgroundColor: groups.find(g => g.id === card.group_id)?.color || GROUP_COLORS.softGray
+                            }}
+                          >
+                            <div className="flex items-center justify-between border-b border-gray-300 pb-2">
+                              <div className="flex items-center gap-2">
+                                <div 
+                                  className="w-2 h-2 rounded-full" 
+                                  style={{ backgroundColor: groups.find(g => g.id === card.group_id)?.color || GROUP_COLORS.softGray }}
+                                />
+                                <EditableText
+                                  value={groups.find(g => g.id === card.group_id)?.name || 'Ungrouped'}
+                                  onSave={(newName) => groups.find(g => g.id === card.group_id) && updateGroup(card.group_id, { name: newName })}
+                                  className="text-sm font-medium text-gray-700"
+                                />
                               </div>
-                            <div className="space-y-1">
-                              <label className="text-xs font-medium text-gray-500">Answer</label>
-                              <EditableText
-                                value={card.answer}
-                                onSave={(newAnswer) => updateCard(card.id, { answer: newAnswer })}
-                                className="block w-full text-gray-700"
-                              />
-                        </div>
+                              <div className="flex items-center gap-1">
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm"
+                                      className="h-8 w-8 p-0 hover:bg-black/5"
+                                    >
+                                      <Palette className="h-4 w-4" />
+                                    </Button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-[270px]">
+                                    <div className="grid grid-cols-5 gap-[2px] p-1">
+                                      {Object.entries(GROUP_COLORS).map(([name, color]) => (
+                                        <div
+                                          key={color}
+                                          className={`w-9 h-9 rounded-md cursor-pointer transition-all ${
+                                            groups.find(g => g.id === card.group_id)?.color === color ? "ring-1 ring-black" : ""
+                                          }`}
+                                          style={{ backgroundColor: color }}
+                                          onClick={() => groups.find(g => g.id === card.group_id) && updateGroup(card.group_id, { color })}
+                                        />
+                                      ))}
+                                    </div>
+                                  </PopoverContent>
+                                </Popover>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  className="h-8 w-8 p-0 hover:bg-black/5"
+                                  onClick={() => deleteCard(card.id)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                            <div className="space-y-3">
+                              <div className="space-y-1">
+                                <label className="text-xs font-medium text-gray-500">Question</label>
+                                <EditableText
+                                  value={card.question}
+                                  onSave={(newQuestion) => updateCard(card.id, { question: newQuestion })}
+                                  className="block w-full text-gray-900"
+                                />
+                                </div>
+                              <div className="space-y-1">
+                                <label className="text-xs font-medium text-gray-500">Answer</label>
+                                <EditableText
+                                  value={card.answer}
+                                  onSave={(newAnswer) => updateCard(card.id, { answer: newAnswer })}
+                                  className="block w-full text-gray-700"
+                                />
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
                       </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
