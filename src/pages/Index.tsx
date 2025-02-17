@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/lib/supabase";
 import { Database } from "@/types/database";
-import { Palette, Trash2 } from "lucide-react";
+import { Palette, Trash2, Play, Plus, ScrollText, Files, Settings, LogOut } from "lucide-react";
 import { EditableText } from "@/components/EditableText";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { GroupCarousel } from "@/components/GroupCarousel";
@@ -92,9 +92,9 @@ const Index = () => {
     }
 
     try {
-      const newCard = {
-        question,
-        answer,
+    const newCard = {
+      question,
+      answer,
         group_id: selectedGroupId,
         user_id: user.id
       };
@@ -137,7 +137,7 @@ const Index = () => {
       
       setGroups(prev => [...prev, data]);
       setSelectedGroupId(data.id);
-      toast.success("Group created successfully!");
+    toast.success("Group created successfully!");
     } catch (error) {
       console.error('Error creating group:', error);
       toast.error('Failed to create group');
@@ -153,7 +153,7 @@ const Index = () => {
 
     try {
       const cardsToAdd = newCards.map(card => ({
-        ...card,
+      ...card,
         group_id: selectedGroupId,
         user_id: user.id
       }));
@@ -388,7 +388,17 @@ const Index = () => {
             className="w-full justify-start"
             variant={isAdding ? "outline" : "default"}
           >
-            {isAdding ? "Start Practice" : "Add Cards"}
+            {isAdding ? (
+              <>
+                <Play className="mr-2 h-4 w-4" />
+                Start Practice
+              </>
+            ) : (
+              <>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Cards
+              </>
+            )}
           </Button>
 
           {!isAdding && (
@@ -397,6 +407,7 @@ const Index = () => {
               onClick={() => setShowPracticeSetup(true)}
               className="w-full justify-start"
             >
+              <Settings className="mr-2 h-4 w-4" />
               Change Practice Setup
             </Button>
           )}
@@ -408,6 +419,7 @@ const Index = () => {
                 onClick={() => setAddMode("single")} 
                 className="w-full justify-start"
               >
+                <Plus className="mr-2 h-4 w-4" />
                 Single Card
               </Button>
               <Button 
@@ -415,6 +427,7 @@ const Index = () => {
                 onClick={() => setAddMode("bulk")} 
                 className="w-full justify-start"
               >
+                <Files className="mr-2 h-4 w-4" />
                 Bulk Add
               </Button>
             </>
@@ -437,6 +450,7 @@ const Index = () => {
             onClick={handleSignOut}
             className="w-full justify-start"
           >
+            <LogOut className="mr-2 h-4 w-4" />
             Log Out
           </Button>
         </div>
@@ -451,7 +465,7 @@ const Index = () => {
             <img 
               src={logo} 
               alt="Flashyy" 
-              className="h-[60px] w-auto mx-auto mb-2" 
+              className="h-[50px] w-auto mx-auto mb-2" 
             />
             <p className="text-gray-600 mb-6 md:mb-8 text-sm md:text-base">
               {isAdding ? "Add new flashcards to your collection" : "Swipe left/right or tap to flip cards"}
@@ -459,32 +473,42 @@ const Index = () => {
             
             {/* Mobile-only buttons */}
             <div className="space-x-2 md:space-x-4 flex justify-center md:hidden">
-              {isAdding ? (
-                <>
-                <Button 
-                    onClick={toggleMode} 
-                    className="mb-4  bg-white hover:bg-gray-200 text-black hover:text-black"
-                    variant={addMode === "single" ? "default" : "outline"}
-                  >
-                    Start Practice
-                  </Button>
-                  <Button 
-                    variant={addMode === "single" ? "default" : "outline"} 
-                    onClick={() => setAddMode("single")} 
-                    className="mb-4 bg-white hover:bg-gray-200 text-black hover:text-black"
-                  >
-                    Single Card
-                  </Button>
-                  <Button 
-                    variant={addMode === "bulk" ? "default" : "outline"} 
-                    onClick={() => setAddMode("bulk")} 
-                    className="mb-4 bg-white hover:bg-gray-200 text-black hover:text-black"
-                  >
-                    Bulk Add
-                  </Button>
-                  
-                </>
-              ) : null}
+              {isAdding && (
+                <div className="space-y-6">
+                  {/* Modern icon navigation */}
+                  <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto mb-8">
+                    <button
+                      onClick={toggleMode}
+                      className="flex flex-col items-center justify-center p-4 rounded-xl bg-white shadow-sm hover:shadow-md transition-all"
+                    >
+                      <div className="h-12 w-12 rounded-full bg-gray-50 flex items-center justify-center mb-2">
+                        <Play className="h-6 w-6 text-gray-700" />
+                      </div>
+                      <span className="text-sm font-medium text-gray-700">Start Practice</span>
+                    </button>
+
+                    <button
+                      onClick={() => setAddMode("single")}
+                      className={cn(
+                        "flex flex-col items-center justify-center p-4 rounded-xl transition-all",
+                        (addMode === "single" || addMode === "bulk")
+                          ? "bg-black text-white shadow-lg" 
+                          : "bg-white text-gray-700 shadow-sm hover:shadow-md"
+                      )}
+                    >
+                      <div className={cn(
+                        "h-12 w-12 rounded-full flex items-center justify-center mb-2",
+                        (addMode === "single" || addMode === "bulk") ? "bg-white/10" : "bg-gray-50"
+                      )}>
+                        <Plus className="h-6 w-6" />
+                      </div>
+                      <span className="text-sm font-medium">Add Card</span>
+                    </button>
+                  </div>
+
+                 
+                </div>
+              )}
             </div>
           </div>
 
@@ -501,32 +525,42 @@ const Index = () => {
               />
             </div>
           )}
-
-          {isAdding && (
-            <div id="add-card-section" className="grid md:grid-cols-2 gap-8">
-              <div className="space-y-6">
-                {selectedGroupId && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-medium">
+<div>
+                      <h3 className="text-xl mt-[50px] font-medium text-center mb-4">
                         Adding cards to: {groups.find(g => g.id === selectedGroupId)?.name}
                       </h3>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => setSelectedGroupId("")}
-                      >
-                        Cancel
-                      </Button>
+                      
                     </div>
-                    {addMode === "single" ? (
-                      <AddCardForm onAdd={handleAddCard} />
-                    ) : (
-                      <BulkAddForm onAdd={handleBulkAdd} />
-                    )}
-                  </div>
-                )}
+<div className="flex justify-center mb-6 gap-3">
+                      <button
+                          onClick={() => setAddMode("single")}
+                          className={cn(
+                            "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center",
+                            addMode === "single" 
+                              ? "bg-black text-white" 
+                              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                          )}
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          Single Card
+                        </button>
+                        <button
+                          onClick={() => setAddMode("bulk")}
+                          className={cn(
+                            "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center",
+                            addMode === "bulk" 
+                              ? "bg-black text-white" 
+                              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                          )}
+                        >
+                          <Files className="mr-2 h-4 w-4" />
+                          Bulk Add
+                        </button>
+                      </div>
 
+          {isAdding && (
+            <div id="add-card-section" className="grid md:grid-cols-2 gap-8 mt-[20px]">
+              <div className="space-y-6">
                 {!selectedGroupId && (
                   <div className="text-center py-8 bg-gray-50 rounded-lg">
                     <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -535,6 +569,17 @@ const Index = () => {
                     <p className="text-sm text-gray-500">
                       Click on a group above to add cards to it
                     </p>
+                  </div>
+                )}
+                
+                {selectedGroupId && (
+                  <div className="mt-[40px]">
+                    
+                    {addMode === "single" ? (
+                      <AddCardForm onAdd={handleAddCard} />
+                    ) : (
+                      <BulkAddForm onAdd={handleBulkAdd} />
+                    )}
                   </div>
                 )}
               </div>
@@ -561,7 +606,7 @@ const Index = () => {
                       }}
                     >
                       <div className="flex items-center justify-between border-b border-gray-300 pb-2">
-                        <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
                           <div 
                             className="w-2 h-2 rounded-full" 
                             style={{ backgroundColor: groups.find(g => g.id === card.group_id)?.color || GROUP_COLORS.softGray }}
@@ -595,7 +640,7 @@ const Index = () => {
                                     onClick={() => groups.find(g => g.id === card.group_id) && updateGroup(card.group_id, { color })}
                                   />
                                 ))}
-                              </div>
+                            </div>
                             </PopoverContent>
                           </Popover>
                           <Button 
@@ -616,7 +661,7 @@ const Index = () => {
                             onSave={(newQuestion) => updateCard(card.id, { question: newQuestion })}
                             className="block w-full text-gray-900"
                           />
-                        </div>
+                          </div>
                         <div className="space-y-1">
                           <label className="text-xs font-medium text-gray-500">Answer</label>
                           <EditableText
@@ -635,10 +680,24 @@ const Index = () => {
 
           {!isAdding && (
             <div className={cn(
-              "flex flex-col justify-between",
-              isMobile ? "h-[calc(100vh-180px)]" : "h-auto" // Adjust height for mobile
+              "flex flex-col",
+              // Mobile-only styles
+              isMobile && "h-[100vh] fixed inset-0 bg-white"
             )}>
-              <div className="flex-1 flex justify-center items-center">
+              {/* Header - Fixed height */}
+              <div className="flex-none p-4 text-center">
+                <img 
+                  src={logo} 
+                  alt="Flashyy" 
+                  className="h-[40px] w-auto mx-auto mb-2" 
+                />
+                <p className="text-gray-600 text-sm">
+                  Swipe left/right or tap to flip cards
+                </p>
+                      </div>
+
+              {/* Flashcard Container - Flexible height */}
+              <div className="flex-1 flex items-center justify-center px-4 min-h-0">
                 {practiceCards.length > 0 ? (
                   <Flashcard 
                     key={practiceCards[currentCardIndex].id} 
@@ -652,12 +711,13 @@ const Index = () => {
                 ) : (
                   <div className="text-center text-gray-500">
                     No flashcards available. Add some first!
-                  </div>
+                      </div>
                 )}
               </div>
 
+              {/* Footer - Fixed height */}
               {cards.length > 0 && (
-                <div className="text-center mt-4 mb-4">
+                <div className="flex-none p-4 text-center bg-white">
                   <p className="text-sm text-gray-500">
                     Flashcard {currentCardIndex + 1} of {practiceCards.length}
                   </p>
@@ -670,7 +730,6 @@ const Index = () => {
                       Change
                     </button>
                   </p>
-                  
                 </div>
               )}
             </div>
@@ -695,7 +754,7 @@ const Index = () => {
         onCancel={() => setShowPracticeSetup(false)}
       />
     )}
-  </div>;
+    </div>;
 };
 
 export default Index;

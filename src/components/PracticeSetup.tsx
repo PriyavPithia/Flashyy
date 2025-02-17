@@ -90,7 +90,7 @@ export function PracticeSetup({ groups, cards, onStart, onCancel }: PracticeSetu
                   <div className="flex items-start justify-between">
                     <div>
                       <h4 className="font-medium">{group.name}</h4>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm mt-[30px] text-gray-600">
                         {groupCards.length} flashcards
                       </p>
                     </div>

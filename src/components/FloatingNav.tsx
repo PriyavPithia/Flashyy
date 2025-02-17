@@ -77,6 +77,7 @@ export function FloatingNav({
                     }}
                     className="w-full justify-start rounded-none px-4 py-2 text-sm"
                   >
+                    <Play className="mr-2 h-4 w-4" />
                     Start Practice
                   </Button>
                 ) : (
@@ -89,6 +90,7 @@ export function FloatingNav({
                       }}
                       className="w-full justify-start rounded-none px-4 py-2 text-sm"
                     >
+                      <Settings className="mr-2 h-4 w-4" />
                       Practice Setup
                     </Button>
                     <Button
@@ -99,6 +101,7 @@ export function FloatingNav({
                       }}
                       className="w-full justify-start rounded-none px-4 py-2 text-sm"
                     >
+                      <Plus className="mr-2 h-4 w-4" />
                       Add Cards
                     </Button>
                   </>
@@ -109,6 +112,7 @@ export function FloatingNav({
                   onClick={handleSignOut}
                   className="w-full justify-start rounded-none px-4 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50"
                 >
+                  <LogOut className="mr-2 h-4 w-4" />
                   Log Out
                 </Button>
               </div>
