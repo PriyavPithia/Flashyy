@@ -458,8 +458,14 @@ const Index = () => {
     </div>
 
     {/* Main Content */}
-    <div className="flex-1 overflow-auto">
-      <div className="px-[20px] h-full pt-[20px] pb-[15px]">
+    <div className={cn(
+      "flex-1",
+      !isAdding && isMobile ? "overflow-hidden" : "overflow-auto"
+    )}>
+      <div className={cn(
+        "px-[20px] h-full pt-[20px] pb-[15px]",
+        !isAdding && isMobile && "fixed inset-0 bg-white"
+      )}>
         <div className="max-w-4xl mx-auto h-[80%]">
           <div className="">
             
@@ -692,9 +698,9 @@ const Index = () => {
           )}
 
           {!isAdding && (
-            <div className="flex flex-col min-h-[calc(100dvh-35px)] justify-between overflow-hidden">
-              {/* Header - Keep compact */}
-              <div className="text-center py-2">
+            <div className="flex flex-col min-h-[calc(100dvh-35px)] justify-between overflow-hidden touch-none">
+              {/* Header */}
+              <div className="text-center py-2 flex-none">
                 <img 
                   src={logo} 
                   alt="Flashyy" 
@@ -705,7 +711,7 @@ const Index = () => {
                 </p>
               </div>
 
-              {/* Flashcard Container - Fixed height, no scroll */}
+              {/* Flashcard Container */}
               <div className="flex-1 flex items-center justify-center px-4 overflow-hidden">
                 {practiceCards.length > 0 ? (
                   <Flashcard 
@@ -724,9 +730,9 @@ const Index = () => {
                 )}
               </div>
 
-              {/* Footer - Keep compact */}
+              {/* Footer */}
               {cards.length > 0 && (
-                <div className="text-center py-2">
+                <div className="text-center py-2 flex-none">
                   <p className="text-sm text-gray-500">
                     Flashcard {currentCardIndex + 1} of {practiceCards.length}
                   </p>
