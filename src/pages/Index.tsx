@@ -488,7 +488,7 @@ const Index = () => {
               <div className="flex-1 overflow-y-auto">
                 {/* Mobile buttons */}
                 <div className="md:hidden mt-6 mb-7">
-                  <div className="grid grid-cols-2 gap-4  px-4 max-w-sm mx-auto">
+                  <div className="grid grid-cols-2 gap-4  px-8 max-w-sm mx-auto">
                     <button
                       onClick={toggleMode}
                       className="flex flex-col items-center justify-center p-4 rounded-xl bg-white shadow-sm hover:shadow-md transition-all"
@@ -692,21 +692,21 @@ const Index = () => {
           )}
 
           {!isAdding && (
-            <div className="flex flex-col min-h-[calc(100dvh-35px)] justify-between">
-              {/* Header */}
-              <div className="text-center">
+            <div className="flex flex-col min-h-[calc(100dvh-35px)] justify-between overflow-hidden">
+              {/* Header - Keep compact */}
+              <div className="text-center py-2">
                 <img 
                   src={logo} 
                   alt="Flashyy" 
-                  className="h-[45px] w-auto mx-auto mb-2" 
+                  className="h-[45px] w-auto mx-auto mb-1" 
                 />
                 <p className="text-gray-600 text-sm">
-                Tap to see Answer • Swipe to navigate
+                  Tap to see Answer • Swipe to navigate
                 </p>
               </div>
 
-              {/* Flashcard Container */}
-              <div className="flex-1 flex items-center justify-center">
+              {/* Flashcard Container - Fixed height, no scroll */}
+              <div className="flex-1 flex items-center justify-center px-4 overflow-hidden">
                 {practiceCards.length > 0 ? (
                   <Flashcard 
                     key={practiceCards[currentCardIndex].id} 
@@ -724,13 +724,13 @@ const Index = () => {
                 )}
               </div>
 
-              {/* Footer */}
+              {/* Footer - Keep compact */}
               {cards.length > 0 && (
-                <div className="text-center">
+                <div className="text-center py-2">
                   <p className="text-sm text-gray-500">
                     Flashcard {currentCardIndex + 1} of {practiceCards.length}
                   </p>
-                  <p className="text-sm text-gray-500 mt-2">
+                  <p className="text-sm text-gray-500 mt-1">
                     Currently practicing: {getPracticeSetupText()} • 
                     <button 
                       onClick={() => setShowPracticeSetup(true)}
