@@ -101,14 +101,14 @@ export function Flashcard({ question, answer, onSwipe, groupName, groupColor, di
                 style={{ backgroundColor: groupColor }} 
                 className="w-full h-full backdrop-blur-sm rounded-xl shadow-lg py-6 px-2 flex flex-col"
               >
-                <span className="mb-4 text-center text-lg text-gray-500 font-medium">{groupName}</span>
+                <span className=" text-center text-lg mt-[-5px] text-gray-500 font-medium">{groupName}</span>
                 <div className="flex-1 flex flex-col justify-center">
                   <div className="w-full max-w-[90%] mx-auto">
                     <div>
                       <p className="text-sm font-medium mb-2 text-gray-500">Question:</p>
                       <p className="text-[15px] md:text-xl font-medium leading-[18px]">{question}</p>
                     </div>
-                    <div className="w-full h-px bg-gray-500 hover:bg-gray-400 mt-4 mb-3" />
+                    <div className="w-full h-px bg-gray-400 hover:bg-gray-400 mt-4 mb-3" />
                     <div>
                       <p className="text-sm font-medium mb-2 text-gray-500">Answer:</p>
                       <p className="text-[15px] md:text-xl font-medium leading-[18px]">{answer}</p>

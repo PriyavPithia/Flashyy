@@ -75,13 +75,13 @@ export function GroupCarousel({
   };
 
   return (
-    <div className="relative w-full max-w-4xl mx-auto mb-8 overflow-hidden">
-      <div className="flex justify-between items-center mb-4">
+    <div className="relative w-full max-w-4xl mx-auto mb-10 overflow-hidden">
+      <div className="flex justify-between items-center mt-4 mb-4">
         <h3 className="text-lg font-medium">Your Groups</h3>
         <Dialog open={isAddingGroup} onOpenChange={setIsAddingGroup}>
           <DialogTrigger asChild>
             <button
-              className="h-8 w-8 rounded-full bg-black flex items-center justify-center transition-all hover:opacity-90"
+              className="h-10 w-10 rounded-full bg-black flex items-center justify-center transition-all hover:opacity-90"
             >
               <Plus className="h-4 w-4 text-white" />
             </button>
@@ -131,18 +131,16 @@ export function GroupCarousel({
       <div className="relative h-[140px] md:h-[160px] isolate">
         <div
           ref={scrollContainerRef}
-          className="flex overflow-x-auto gap-2 scrollbar-none scroll-smooth snap-x snap-mandatory h-full"
+          className="flex overflow-x-scroll hide-scrollbar gap-2 scroll-smooth snap-x snap-mandatory h-full"
           style={{ 
-            scrollbarWidth: 'none', 
-            msOverflowStyle: 'none',
-            position: 'relative',
-            zIndex: 1
+            scrollbarWidth: 'none',  // Firefox
+            msOverflowStyle: 'none'  // IE and Edge
           }}
         >
           {groups.map((group) => (
             <div 
               key={group.id}
-              className="flex-none w-[240px] md:w-[240px] lg:w-[300px] snap-start h-full"
+              className="flex-none w-[280px] md:w-[240px] lg:w-[300px] snap-start h-full"
             >
               <div
                 className={cn(
@@ -180,12 +178,12 @@ export function GroupCarousel({
                 }}
               >
                 <div className="flex items-center justify-between" onClick={e => e.stopPropagation()}>
-                  <div className="flex items-center gap-1.5 max-w-[120px] md:max-w-[160px]">
-                    <Folder className="h-4 w-4 shrink-0 md:h-5 md:w-5 text-gray-600" />
+                  <div className="flex items-center gap-1.5 max-w-[180px] md:max-w-[160px]">
+                    <Folder className="h-6 w-6 shrink-0 md:h-5 md:w-5 text-gray-600" />
                     <EditableText
                       value={group.name}
                       onSave={(newName) => onUpdateGroup(group.id, { name: newName })}
-                      className="font-medium truncate text-sm md:text-base editable-text"
+                      className="font-medium truncate text-lg md:text-base editable-text"
                     />
                   </div>
                   <div className="flex items-center gap-1">
@@ -193,7 +191,7 @@ export function GroupCarousel({
                       <PopoverTrigger asChild>
                         <Button 
                           variant="ghost" 
-                          size="sm"
+                          size="lg"
                           className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-black/5 shrink-0 popover-trigger"
                         >
                           <Palette className="h-3.5 w-3.5 md:h-4 md:w-4" />
@@ -231,7 +229,7 @@ export function GroupCarousel({
                     </Button>
                   </div>
                 </div>
-                <p className="text-xs md:text-sm text-gray-600 mt-auto">
+                <p className="text-sm md:text-sm text-gray-600 mt-auto">
                   {cards.filter(card => card.group_id === group.id).length} {cards.filter(card => card.group_id === group.id).length === 1 ? "Flashcard" : "Flashcards"}
                 </p>
               </div>

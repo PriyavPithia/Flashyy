@@ -494,34 +494,18 @@ const Index = () => {
               <div className="flex-1 overflow-y-auto">
                 {/* Mobile buttons */}
                 <div className="md:hidden mt-6 mb-7">
-                  <div className="grid grid-cols-2 gap-4  px-8 max-w-sm mx-auto">
+                  <div className=" justify-center flex  mx-auto">
                     <button
                       onClick={toggleMode}
-                      className="flex flex-col items-center justify-center p-4 rounded-xl bg-white shadow-sm hover:shadow-md transition-all"
+                      className="flex mt-3 flex-col py-5 w-[135px] items-center justify-center p-4 rounded-xl bg-black text-white shadow-sm hover:shadow-md transition-all"
                     >
-                      <div className="h-12 w-12 rounded-full bg-gray-50 flex items-center justify-center mb-2">
-                        <Play className="h-6 w-6 text-gray-700" />
+                      <div className="h-12 w-12 rounded-full bg-white/10 flex items-center justify-center mb-2">
+                        <Play className="h-6 w-6 text-white" />
                       </div>
-                      <span className="text-sm font-medium text-gray-700">Start Practice</span>
+                      <span className="text-sm font-medium text-white">Start Practice</span>
                     </button>
 
-                    <button
-                      onClick={() => setAddMode("single")}
-                      className={cn(
-                        "flex flex-col items-center justify-center p-4 rounded-xl transition-all",
-                        (addMode === "single" || addMode === "bulk")
-                          ? "bg-black text-white shadow-lg" 
-                          : "bg-white text-gray-700 shadow-sm hover:shadow-md"
-                      )}
-                    >
-                      <div className={cn(
-                        "h-12 w-12 rounded-full flex items-center justify-center mb-2",
-                        (addMode === "single" || addMode === "bulk") ? "bg-white/10" : "bg-gray-50"
-                      )}>
-                        <Plus className="h-6 w-6" />
-                      </div>
-                      <span className="text-sm font-medium">Add Card</span>
-                    </button>
+                    
                   </div>
                 </div>
 
@@ -541,10 +525,10 @@ const Index = () => {
                 {/* Add card section */}
                 {selectedGroupId && (
                   <div className="mb-6 px-4">
-                    <h3 className="text-xl font-medium text-center mb-4">
+                    <h3 className="text-xl font-medium text-center  mb-4">
                       Adding cards to: {groups.find(g => g.id === selectedGroupId)?.name}
                     </h3>
-                    <div className="flex justify-center gap-3">
+                    <div className="flex my-8 justify-center gap-3">
                       <button
                         onClick={() => setAddMode("single")}
                         className={cn(
@@ -566,7 +550,7 @@ const Index = () => {
                             : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                         )}
                       >
-                        <Plus className="mr-2 h-4 w-4" />
+                        <Files className="mr-2 h-4 w-4" />
                         Bulk Add
                       </button>
                     </div>
@@ -576,9 +560,9 @@ const Index = () => {
                 {/* Cards grid */}
                 <div id="add-card-section" className="grid md:grid-cols-2 gap-6">
                   {/* Left column - Add form */}
-                  <div className="space-y-6">
+            <div className="space-y-6">
                     {!selectedGroupId ? (
-                      <div className="text-center py-8 bg-gray-50 rounded-lg">
+                      <div className="text-center mt-4 py-8 bg-gray-50 rounded-lg">
                         <h3 className="text-lg font-medium text-gray-900 mb-2">
                           Select a Group
                         </h3>
@@ -599,7 +583,7 @@ const Index = () => {
 
                   {/* Right column - Cards list */}
                   <div className="space-y-4">
-                    <h2 className="text-xl font-semibold text-center mb-4">
+                    <h2 className="text-xl font-semibold text-center mt-4 mb-6">
                       {selectedGroupId 
                         ? `${groups.find(g => g.id === selectedGroupId)?.name} (${
                             cards.filter(card => card.group_id === selectedGroupId).length
@@ -608,8 +592,8 @@ const Index = () => {
                       }
                     </h2>
                     {/* Fixed height scrollable container */}
-                    <div className="h-[400px] overflow-y-auto pr-4 custom-scrollbar">
-                      <div className="space-y-4">
+                    <div className="h-[600px] overflow-y-auto pr-4 custom-scrollbar">
+              <div className="space-y-4">
                         {(selectedGroupId 
                           ? cards.filter(card => card.group_id === selectedGroupId)
                           : cards
@@ -622,15 +606,15 @@ const Index = () => {
                             }}
                           >
                             <div className="flex items-center justify-between border-b border-gray-300 pb-2">
-                              <div className="flex items-center gap-2">
+                <div className="flex items-center ">
                                 <div 
-                                  className="w-2 h-2 rounded-full" 
+                                  className=" h-2 rounded-full" 
                                   style={{ backgroundColor: groups.find(g => g.id === card.group_id)?.color || GROUP_COLORS.softGray }}
                                 />
                                 <EditableText
                                   value={groups.find(g => g.id === card.group_id)?.name || 'Ungrouped'}
                                   onSave={(newName) => groups.find(g => g.id === card.group_id) && updateGroup(card.group_id, { name: newName })}
-                                  className="text-sm font-medium text-gray-700"
+                                  className="text-md ml-[-8px] font-medium text-gray-700"
                                 />
                               </div>
                               <div className="flex items-center gap-1">
@@ -686,7 +670,7 @@ const Index = () => {
                                   className="block w-full text-gray-700"
                                 />
                               </div>
-                            </div>
+                        </div>
                           </div>
                         ))}
                       </div>
@@ -709,10 +693,10 @@ const Index = () => {
                 <p className="text-gray-600 text-sm">
                   Tap to see Answer • Swipe to navigate
                 </p>
-              </div>
+                      </div>
 
               {/* Flashcard Container */}
-              <div className="flex-1 flex items-center justify-center px-4 overflow-hidden">
+              <div className="flex-1 flex items-center justify-center overflow-hidden">
                 {practiceCards.length > 0 ? (
                   <Flashcard 
                     key={practiceCards[currentCardIndex].id} 
@@ -726,7 +710,7 @@ const Index = () => {
                 ) : (
                   <div className="text-center text-gray-500">
                     No flashcards available. Add some first!
-                  </div>
+                      </div>
                 )}
               </div>
 
@@ -755,11 +739,10 @@ const Index = () => {
 
     {/* Floating Navigation */}
     <FloatingNav 
-      isAdding={isAdding} 
+      isAdding={isAdding}
       onToggleMode={toggleMode}
       onPracticeSetup={() => setShowPracticeSetup(true)}
-      showPracticeSetup={!isAdding}
-    />
+      showPracticeSetup={!isAdding} children={""}    />
 
     {showPracticeSetup && (
       <PracticeSetup

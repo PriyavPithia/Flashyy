@@ -49,7 +49,7 @@ export const AddCardForm = ({
           value={answer} 
           onChange={e => setAnswer(e.target.value)} 
           placeholder="Enter the answer" 
-          className="w-full min-h-[100px] text-base"
+          className="w-full min-h-[100px] outline-none  outline-hidden border-none text-base"
         />
       </div>
       <Button type="submit" className="w-full">

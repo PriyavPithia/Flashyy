@@ -112,3 +112,18 @@
 .float {
   animation: float 6s ease-in-out infinite;
 }
+
+/* Hide scrollbar while maintaining scroll functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
+/* Add this to remove focus outline from textareas */
+textarea:focus {
+  outline: none;
+}

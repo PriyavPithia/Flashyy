@@ -58,7 +58,7 @@ export function EditableText({ value, onSave, className = "" }: EditableTextProp
         }}
         className={cn(
           "w-full bg-transparent border-none p-0 no-focus-ring auto-grow",
-          "text-inherit font-inherit resize-none",
+          "text-inherit font-inherit  resize-none",
           className
         )}
         rows={1}
@@ -71,7 +71,7 @@ export function EditableText({ value, onSave, className = "" }: EditableTextProp
       onClick={() => setIsEditing(true)}
       className={cn(
         "cursor-pointer hover:bg-black/5 px-2 py-1 rounded transition-colors",
-        "whitespace-pre-wrap break-words",
+        "whitespace-pre-wrap break-words text-sm leading-5",
         className
       )}
     >
