@@ -420,16 +420,16 @@ const Index = () => {
                 className="w-full justify-start"
               >
                 <Plus className="mr-2 h-4 w-4" />
-                Single Card
-              </Button>
+                  Single Card
+                </Button>
               <Button 
                 variant={addMode === "bulk" ? "default" : "outline"} 
                 onClick={() => setAddMode("bulk")} 
                 className="w-full justify-start"
               >
                 <Files className="mr-2 h-4 w-4" />
-                Bulk Add
-              </Button>
+                  Bulk Add
+                </Button>
             </>
           )}
         </div>
@@ -461,22 +461,34 @@ const Index = () => {
     <div className="flex-1 overflow-auto">
       <div className="px-[20px] h-full pt-[20px] pb-[15px]">
         <div className="max-w-4xl mx-auto h-[80%]">
-          <div className="text-center mb-0 md:mb-12">
-            <img 
-              src={logo} 
-              alt="Flashyy" 
-              className="h-[50px] w-auto mx-auto mb-2" 
-            />
-            <p className="text-gray-600 mb-6 md:mb-8 text-sm md:text-base">
-              {isAdding ? "Add new flashcards to your collection" : "Swipe left/right or tap to flip cards"}
-            </p>
+          <div className="">
+            
             
             {/* Mobile-only buttons */}
             <div className="space-x-2 md:space-x-4 flex justify-center md:hidden">
-              {isAdding && (
-                <div className="space-y-6">
-                  {/* Modern icon navigation */}
-                  <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto mb-8">
+              
+            </div>
+          </div>
+
+          {isAdding && (
+            <div className="flex flex-col min-h-[100dvh]">
+              {/* Logo section - Keep this compact */}
+              <div className="text-center ">
+                <img 
+                  src={logo} 
+                  alt="Flashyy" 
+                  className="h-[45px] w-auto mx-auto mb-1" 
+                />
+                <p className="text-gray-600 text-sm">
+                  Add new flashcards to your collection
+                </p>
+              </div>
+
+              {/* Main content - Allow this to scroll */}
+              <div className="flex-1 overflow-y-auto">
+                {/* Mobile buttons */}
+                <div className="md:hidden mt-4 mb-6">
+                  <div className="grid grid-cols-2 gap-4 px-4 max-w-sm mx-auto">
                     <button
                       onClick={toggleMode}
                       className="flex flex-col items-center justify-center p-4 rounded-xl bg-white shadow-sm hover:shadow-md transition-all"
@@ -505,199 +517,191 @@ const Index = () => {
                       <span className="text-sm font-medium">Add Card</span>
                     </button>
                   </div>
-
-                 
                 </div>
-              )}
-            </div>
-          </div>
 
-          {isAdding && (
-            <div className="mb-8">
-              <GroupCarousel 
-                groups={groups} 
-                cards={cards} 
-                onUpdateGroup={updateGroup}
-                onSelectGroup={handleGroupSelect}
-                selectedGroupId={selectedGroupId}
-                onAddGroup={handleAddGroup}
-                onDeleteGroup={deleteGroup}
-              />
-            </div>
-          )}
-<div>
-                      <h3 className="text-xl mt-[50px] font-medium text-center mb-4">
-                        Adding cards to: {groups.find(g => g.id === selectedGroupId)?.name}
-                      </h3>
-                      
-                    </div>
-<div className="flex justify-center mb-6 gap-3">
-                      <button
-                          onClick={() => setAddMode("single")}
-                          className={cn(
-                            "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center",
-                            addMode === "single" 
-                              ? "bg-black text-white" 
-                              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                          )}
-                        >
-                          <Plus className="mr-2 h-4 w-4" />
-                          Single Card
-                        </button>
-                        <button
-                          onClick={() => setAddMode("bulk")}
-                          className={cn(
-                            "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center",
-                            addMode === "bulk" 
-                              ? "bg-black text-white" 
-                              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                          )}
-                        >
-                          <Files className="mr-2 h-4 w-4" />
-                          Bulk Add
-                        </button>
-                      </div>
+                {/* Groups carousel */}
+                <div className="mb-6">
+                  <GroupCarousel 
+                    groups={groups} 
+                    cards={cards} 
+                    onUpdateGroup={updateGroup}
+                    onSelectGroup={handleGroupSelect}
+                    selectedGroupId={selectedGroupId}
+                    onAddGroup={handleAddGroup}
+                    onDeleteGroup={deleteGroup}
+                  />
+                </div>
 
-          {isAdding && (
-            <div id="add-card-section" className="grid md:grid-cols-2 gap-8 mt-[20px]">
-              <div className="space-y-6">
-                {!selectedGroupId && (
-                  <div className="text-center py-8 bg-gray-50 rounded-lg">
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">
-                      Select a Group
+                {/* Add card section */}
+                {selectedGroupId && (
+                  <div className="mb-6 px-4">
+                    <h3 className="text-xl font-medium text-center mb-4">
+                      Adding cards to: {groups.find(g => g.id === selectedGroupId)?.name}
                     </h3>
-                    <p className="text-sm text-gray-500">
-                      Click on a group above to add cards to it
-                    </p>
+                    <div className="flex justify-center gap-3">
+                      <button
+                        onClick={() => setAddMode("single")}
+                        className={cn(
+                          "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center",
+                          addMode === "single" 
+                            ? "bg-black text-white" 
+                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        )}
+                      >
+                        <Plus className="mr-2 h-4 w-4" />
+                        Single Card
+                      </button>
+                      <button
+                        onClick={() => setAddMode("bulk")}
+                        className={cn(
+                          "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center",
+                          addMode === "bulk" 
+                            ? "bg-black text-white" 
+                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        )}
+                      >
+                        <Plus className="mr-2 h-4 w-4" />
+                        Bulk Add
+                      </button>
+                    </div>
                   </div>
                 )}
-                
-                {selectedGroupId && (
-                  <div className="mt-[40px]">
-                    
-                    {addMode === "single" ? (
-                      <AddCardForm onAdd={handleAddCard} />
+
+                {/* Cards grid */}
+                <div id="add-card-section" className="grid md:grid-cols-2 gap-6 ">
+            <div className="space-y-6">
+                    {!selectedGroupId ? (
+                      <div className="text-center py-8 bg-gray-50 rounded-lg">
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                          Select a Group
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          Click on a group above to add cards to it
+                        </p>
+                      </div>
                     ) : (
-                      <BulkAddForm onAdd={handleBulkAdd} />
+                      <div>
+                        {addMode === "single" ? (
+                          <AddCardForm onAdd={handleAddCard} />
+                        ) : (
+                          <BulkAddForm onAdd={handleBulkAdd} />
+                        )}
+                      </div>
                     )}
                   </div>
-                )}
-              </div>
 
               <div className="space-y-4">
-                <h2 className="text-xl font-semibold text-center mb-4">
-                  {selectedGroupId 
-                    ? `${groups.find(g => g.id === selectedGroupId)?.name} (${
-                        cards.filter(card => card.group_id === selectedGroupId).length
-                      })`
-                    : `All Flashcards (${cards.length})`
-                  }
-                </h2>
-                <div className="space-y-4 max-h-[calc(100vh-300px)] overflow-y-auto pr-4 custom-scrollbar">
-                  {(selectedGroupId 
-                    ? cards.filter(card => card.group_id === selectedGroupId)
-                    : cards
-                  ).map((card) => (
-                    <div 
-                      key={card.id} 
-                      className="rounded-xl shadow-md p-4 space-y-2 transition-all hover:shadow-lg"
-                      style={{
-                        backgroundColor: groups.find(g => g.id === card.group_id)?.color || GROUP_COLORS.softGray
-                      }}
-                    >
-                      <div className="flex items-center justify-between border-b border-gray-300 pb-2">
+                    <h2 className="text-xl font-semibold text-center mb-4">
+                      {selectedGroupId 
+                        ? `${groups.find(g => g.id === selectedGroupId)?.name} (${
+                            cards.filter(card => card.group_id === selectedGroupId).length
+                          })`
+                        : `All Flashcards (${cards.length})`
+                      }
+                    </h2>
+                    <div className="space-y-4 overflow-y-auto pr-4 custom-scrollbar">
+                      {(selectedGroupId 
+                        ? cards.filter(card => card.group_id === selectedGroupId)
+                        : cards
+                      ).map((card) => (
+                        <div 
+                          key={card.id} 
+                          className="rounded-xl shadow-md p-4 space-y-2 transition-all hover:shadow-lg"
+                          style={{
+                            backgroundColor: groups.find(g => g.id === card.group_id)?.color || GROUP_COLORS.softGray
+                          }}
+                        >
+                          <div className="flex items-center justify-between border-b border-gray-300 pb-2">
                 <div className="flex items-center gap-2">
-                          <div 
-                            className="w-2 h-2 rounded-full" 
-                            style={{ backgroundColor: groups.find(g => g.id === card.group_id)?.color || GROUP_COLORS.softGray }}
-                          />
-                          <EditableText
-                            value={groups.find(g => g.id === card.group_id)?.name || 'Ungrouped'}
-                            onSave={(newName) => groups.find(g => g.id === card.group_id) && updateGroup(card.group_id, { name: newName })}
-                            className="text-sm font-medium text-gray-700"
-                          />
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Popover>
-                            <PopoverTrigger asChild>
+                              <div 
+                                className="w-2 h-2 rounded-full" 
+                                style={{ backgroundColor: groups.find(g => g.id === card.group_id)?.color || GROUP_COLORS.softGray }}
+                              />
+                              <EditableText
+                                value={groups.find(g => g.id === card.group_id)?.name || 'Ungrouped'}
+                                onSave={(newName) => groups.find(g => g.id === card.group_id) && updateGroup(card.group_id, { name: newName })}
+                                className="text-sm font-medium text-gray-700"
+                              />
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    className="h-8 w-8 p-0 hover:bg-black/5"
+                                  >
+                                    <Palette className="h-4 w-4" />
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[270px]">
+                                  <div className="grid grid-cols-5 gap-[2px] p-1">
+                                    {Object.entries(GROUP_COLORS).map(([name, color]) => (
+                                      <div
+                                        key={color}
+                                        className={`w-9 h-9 rounded-md cursor-pointer transition-all ${
+                                          groups.find(g => g.id === card.group_id)?.color === color ? "ring-1 ring-black" : ""
+                                        }`}
+                                        style={{ backgroundColor: color }}
+                                        onClick={() => groups.find(g => g.id === card.group_id) && updateGroup(card.group_id, { color })}
+                                      />
+                                    ))}
+                                </div>
+                                </PopoverContent>
+                              </Popover>
                               <Button 
                                 variant="ghost" 
                                 size="sm"
                                 className="h-8 w-8 p-0 hover:bg-black/5"
+                                onClick={() => deleteCard(card.id)}
                               >
-                                <Palette className="h-4 w-4" />
+                                <Trash2 className="h-4 w-4" />
                               </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[270px]">
-                              <div className="grid grid-cols-5 gap-[2px] p-1">
-                                {Object.entries(GROUP_COLORS).map(([name, color]) => (
-                                  <div
-                                    key={color}
-                                    className={`w-9 h-9 rounded-md cursor-pointer transition-all ${
-                                      groups.find(g => g.id === card.group_id)?.color === color ? "ring-1 ring-black" : ""
-                                    }`}
-                                    style={{ backgroundColor: color }}
-                                    onClick={() => groups.find(g => g.id === card.group_id) && updateGroup(card.group_id, { color })}
-                                  />
-                                ))}
                             </div>
-                            </PopoverContent>
-                          </Popover>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            className="h-8 w-8 p-0 hover:bg-black/5"
-                            onClick={() => deleteCard(card.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="space-y-3">
-                        <div className="space-y-1">
-                          <label className="text-xs font-medium text-gray-500">Question</label>
-                          <EditableText
-                            value={card.question}
-                            onSave={(newQuestion) => updateCard(card.id, { question: newQuestion })}
-                            className="block w-full text-gray-900"
-                          />
                           </div>
-                        <div className="space-y-1">
-                          <label className="text-xs font-medium text-gray-500">Answer</label>
-                          <EditableText
-                            value={card.answer}
-                            onSave={(newAnswer) => updateCard(card.id, { answer: newAnswer })}
-                            className="block w-full text-gray-700"
-                          />
+                          <div className="space-y-3">
+                            <div className="space-y-1">
+                              <label className="text-xs font-medium text-gray-500">Question</label>
+                              <EditableText
+                                value={card.question}
+                                onSave={(newQuestion) => updateCard(card.id, { question: newQuestion })}
+                                className="block w-full text-gray-900"
+                              />
+                              </div>
+                            <div className="space-y-1">
+                              <label className="text-xs font-medium text-gray-500">Answer</label>
+                              <EditableText
+                                value={card.answer}
+                                onSave={(newAnswer) => updateCard(card.id, { answer: newAnswer })}
+                                className="block w-full text-gray-700"
+                              />
                         </div>
-                      </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                      </div>
                 </div>
               </div>
             </div>
           )}
 
           {!isAdding && (
-            <div className={cn(
-              "flex flex-col",
-              // Mobile-only styles
-              isMobile && "h-[100vh] fixed inset-0 bg-white"
-            )}>
-              {/* Header - Fixed height */}
-              <div className="flex-none p-4 text-center">
+            <div className="flex flex-col min-h-[calc(100dvh-35px)] justify-between">
+              {/* Header */}
+              <div className="text-center">
                 <img 
                   src={logo} 
                   alt="Flashyy" 
-                  className="h-[40px] w-auto mx-auto mb-2" 
+                  className="h-[45px] w-auto mx-auto mb-2" 
                 />
                 <p className="text-gray-600 text-sm">
-                  Swipe left/right or tap to flip cards
+                Tap to see Answer • Swipe to navigate
                 </p>
-                      </div>
+              </div>
 
-              {/* Flashcard Container - Flexible height */}
-              <div className="flex-1 flex items-center justify-center px-4 min-h-0">
+              {/* Flashcard Container */}
+              <div className="flex-1 flex items-center justify-center">
                 {practiceCards.length > 0 ? (
                   <Flashcard 
                     key={practiceCards[currentCardIndex].id} 
@@ -711,13 +715,13 @@ const Index = () => {
                 ) : (
                   <div className="text-center text-gray-500">
                     No flashcards available. Add some first!
-                      </div>
+                  </div>
                 )}
               </div>
 
-              {/* Footer - Fixed height */}
+              {/* Footer */}
               {cards.length > 0 && (
-                <div className="flex-none p-4 text-center bg-white">
+                <div className="text-center">
                   <p className="text-sm text-gray-500">
                     Flashcard {currentCardIndex + 1} of {practiceCards.length}
                   </p>

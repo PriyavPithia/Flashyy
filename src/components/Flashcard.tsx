@@ -89,10 +89,11 @@ export function Flashcard({ question, answer, onSwipe, groupName, groupColor, di
                   </p>
                 </div>
                 <div className="text-sm text-gray-500 text-center mt-4">
-                  Tap to see Answer • Swipe to navigate
+                  
                 </div>
               </div>
             </div>
+            
 
             {/* Back of card */}
             <div className="absolute w-full h-full backface-hidden rotate-y-180">
@@ -115,7 +116,7 @@ export function Flashcard({ question, answer, onSwipe, groupName, groupColor, di
                   </div>
                 </div>
                 <div className="text-sm text-gray-500 text-center mt-4">
-                  Tap to see Question • Swipe to navigate
+                  
                 </div>
               </div>
             </div>
