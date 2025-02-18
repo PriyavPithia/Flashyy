@@ -804,6 +804,7 @@ ${text}`;
                             <BulkAddForm onAdd={handleBulkAdd} />
                           ) : (
                             <div className="space-y-4 w-full max-w-md">
+                              <h2 className="text-sm text-gray-700 font-medium ">We only support .PDF files</h2>
                               <div className={cn(
                                 "border-2 border-dashed border-gray-200 rounded-lg p-8 text-center",
                                 "hover:border-gray-300 transition-all",

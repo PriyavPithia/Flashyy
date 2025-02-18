@@ -85,7 +85,7 @@ export function Flashcard({ question, answer, onSwipe, groupName, groupColor, di
               >
                 <span className="mb-2 md:mb-4 text-center text-sm md:text-md text-black/50 font-medium">{groupName}</span>
                 <div className="flex-1 flex items-center justify-center">
-                  <p className="text-lg md:text-2xl font-medium text-center text-black/90 px-2">
+                  <p className="text-xl md:text-2xl font-medium text-center text-black/90 px-2">
                     {question}
                   </p>
                 </div>
@@ -103,12 +103,12 @@ export function Flashcard({ question, answer, onSwipe, groupName, groupColor, di
                   <div className="w-full max-w-[92%] mx-auto">
                     <div>
                       <p className="text-xs md:text-sm font-medium mb-1 md:mb-2 text-black/50">Question:</p>
-                      <p className="text-sm md:text-xl font-medium leading-tight md:leading-[18px] text-black/90">{question}</p>
+                      <p className="text-base md:text-xl font-medium leading-tight md:leading-[18px] text-black/90">{question}</p>
                     </div>
                     <div className="w-full h-px my-2 md:my-3" />
                     <div>
                       <p className="text-xs md:text-sm font-medium mb-1 md:mb-2 text-black/50">Answer:</p>
-                      <p className="text-sm md:text-xl font-medium leading-tight md:leading-[18px] text-black/90">{answer}</p>
+                      <p className="text-base md:text-xl font-medium leading-tight md:leading-[18px] text-black/90">{answer}</p>
                     </div>
                   </div>
                 </div>
