@@ -756,7 +756,7 @@ ${text}`;
                       </div>
                     ) : (
                       <>
-                        <h3 className="text-lg md:text-xl italic font-medium text-left mt-[-15px] md:mt-4 mb-1">
+                        <h3 className="text-lg md:text-xl italic font-semibold text-left mt-[-15px] md:mt-4 mb-1">
                           Adding cards to: {groups.find(g => g.id === selectedGroupId)?.name}
                         </h3>
                         <div className="flex md:justify-start justify-between gap-2  flex-wrap">

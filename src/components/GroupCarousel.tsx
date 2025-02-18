@@ -76,7 +76,7 @@ export function GroupCarousel({
   return (
     <div className="relative w-full max-w-4xl mx-auto mb-10 overflow-hidden">
       <div className="flex justify-between items-center mt-4 mb-4">
-        <h3 className="text-lg md:text-xl text-black/90 italic font-medium">Your Groups</h3>
+        <h3 className="text-lg md:text-xl text-black/90 italic font-semibold">Your Groups</h3>
         <Dialog open={isAddingGroup} onOpenChange={setIsAddingGroup}>
           <DialogTrigger asChild>
             <button
