@@ -896,7 +896,7 @@ ${text}`;
                             .map((card) => (
                               <CarouselItem 
                                 key={card.id} 
-                                className="basis-[88%] mb-[70px] pl-4 pr-4 first:pl-4 last:pr-4"
+                                className="basis-[88%] mb-[100px] pl-4 pr-4 first:pl-4 last:pr-4"
                               >
                                 <FlashcardEditor
                                   card={card}
