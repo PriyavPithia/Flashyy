@@ -944,9 +944,9 @@ ${text}`;
 
           {!isAdding && (
             <div className="flex flex-col min-h-[100dvh] px-4 py-2 justify-between touch-none relative">
-              {/* Lighter gradient background - More visible */}
+              {/* Lighter gradient background - Slightly less visible */}
               <div 
-                className="absolute inset-0 pointer-events-none opacity-75"
+                className="absolute inset-0 pointer-events-none opacity-30"
                 style={{
                   background: `
                     linear-gradient(
