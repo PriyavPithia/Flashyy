@@ -1021,10 +1021,10 @@ ${text}`;
                     // Completion screen
                     <div className="text-center space-y-8 px-4">
                       <div className="space-y-2 mt-[-70px] md:mt-[-200px]">
-                        <h2 className="text-3xl italic font-bold text-black/90">
+                        <h2 className="text-3xl italic font-bold text-gray-900">
                         ✨ Perfect!✨
                         </h2>
-                        <p className="text-md text-black/90">
+                        <p className="md:text-md text-sm text-black/70">
                           You have completed your practice.
                         </p>
                       </div>
