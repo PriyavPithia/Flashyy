@@ -886,7 +886,7 @@ ${text}`;
 
                   {/* Right column */}
                   <div className="space-y-4">
-                    <div className="flex justify-between mt-7 mb-[-20px] items-center">
+                    <div className="flex justify-between mt-7 md:mt-0 mb-[-20px] items-center">
                       <h2 className="text-lg italic md:text-xl font-semibold text-black/90 text-center md:text-left mt-4 mb-6">
                         Your Flashcards
                       </h2>
