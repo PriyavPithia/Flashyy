@@ -709,7 +709,7 @@ ${text}`;
     {/* Main Content */}
     <div className={cn(
       "flex-1",
-      !isAdding && isMobile ? "overflow-hidden" : "overflow-auto"
+      !isAdding && isMobile ? "overflow-hidden" : "overflow-auto hide-desktop-scrollbar"
     )}>
       <div className={cn(
         "h-full",
@@ -1015,21 +1015,74 @@ ${text}`;
                       </div>
 
               {/* Flashcard Container */}
-              <div className="flex-1 flex items-center justify-center -mt-4 md:mt-0">
+              <div className="flex-1 flex items-center z-10 justify-center -mt-4 md:mt-0">
                 {practiceCards.length > 0 ? (
-                  <Flashcard 
-                    key={practiceCards[currentCardIndex].id} 
-                    question={practiceCards[currentCardIndex].question} 
-                    answer={practiceCards[currentCardIndex].answer} 
-                    onSwipe={handleSwipe} 
-                    groupName={groups.find(g => g.id === practiceCards[currentCardIndex].group_id)?.name || ""} 
-                    groupColor={groups.find(g => g.id === practiceCards[currentCardIndex].group_id)?.color || GROUP_COLORS.softGray}
-                    direction={swipeDirection}
-                  />
+                  currentCardIndex >= practiceCards.length ? (
+                    // Completion screen
+                    <div className="text-center space-y-8 px-4">
+                      <div className="space-y-2 mt-[-70px] md:mt-[-200px]">
+                        <h2 className="text-3xl italic font-bold text-black/90">
+                        ✨ Perfect!✨
+                        </h2>
+                        <p className="text-md text-black/90">
+                          You have completed your practice.
+                        </p>
+                      </div>
+                      
+                      {/* Completion screen buttons */}
+                      <div className="flex-row grid grid-cols-2 md:grid-cols-3 gap-4 justify-center items-center">
+                        {/* Go Again button */}
+                        <button
+                          onClick={() => {
+                            setPracticeCards(shuffleCards([...practiceCards]));
+                            setCurrentCardIndex(0);
+                          }}
+                          className="flex flex-col py-5 w-[135px] items-center justify-center p-4 rounded-xl bg-black text-white shadow-sm hover:shadow-md transition-all"
+                        >
+                          <div className="h-12 w-12 rounded-full bg-white/10 flex items-center justify-center mb-2">
+                            <Play className="h-6 w-6 text-white" />
+                          </div>
+                          <span className="text-sm font-medium text-white">Go Again</span>
+                        </button>
+
+                        {/* Practice Setup button - Now black */}
+                        <button
+                          onClick={() => setShowPracticeSetup(true)}
+                          className="flex flex-col py-5 w-[135px] items-center justify-center p-4 rounded-xl bg-black text-white shadow-sm hover:shadow-md transition-all"
+                        >
+                          <div className="h-12 w-12 rounded-full bg-white/10 flex items-center justify-center mb-2">
+                            <Settings className="h-6 w-6 text-white" />
+                          </div>
+                          <span className="text-sm font-medium text-white">Practice Setup</span>
+                        </button>
+
+                        {/* Add Cards button - Now black */}
+                        <button
+                          onClick={() => setIsAdding(true)}
+                          className="flex flex-col py-5 w-[135px] items-center justify-center p-4 rounded-xl bg-black text-white shadow-sm hover:shadow-md transition-all"
+                        >
+                          <div className="h-12 w-12 rounded-full bg-white/10 flex items-center justify-center mb-2">
+                            <Plus className="h-6 w-6 text-white" />
+                          </div>
+                          <span className="text-sm font-medium text-white">Add Cards</span>
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <Flashcard 
+                      key={practiceCards[currentCardIndex].id} 
+                      question={practiceCards[currentCardIndex].question} 
+                      answer={practiceCards[currentCardIndex].answer} 
+                      onSwipe={handleSwipe} 
+                      groupName={groups.find(g => g.id === practiceCards[currentCardIndex].group_id)?.name || ""} 
+                      groupColor={groups.find(g => g.id === practiceCards[currentCardIndex].group_id)?.color || GROUP_COLORS.softGray}
+                      direction={swipeDirection}
+                    />
+                  )
                 ) : (
                   <div className="text-center text-gray-500">
                     No flashcards available. Add some first!
-                      </div>
+                  </div>
                 )}
               </div>
 
