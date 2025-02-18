@@ -200,12 +200,7 @@ export function GroupCarousel({
 
                     if (!isInteractiveElement) {
                       onSelectGroup(group.id);
-                      requestAnimationFrame(() => {
-                        window.scrollTo({
-                          top: 0,
-                          behavior: 'smooth'
-                        });
-                      });
+                      
                     }
                   }}
                 >

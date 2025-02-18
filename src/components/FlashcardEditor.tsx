@@ -56,7 +56,7 @@ export function FlashcardEditor({
     <div 
       className={cn(
         "rounded-xl shadow-md transition-all hover:shadow-lg overflow-hidden",
-        "flex-none w-[300px] md:w-full h-fit",
+        "flex-none w-[290px] md:w-full h-fit",
         "relative"
       )}
       style={{
@@ -112,18 +112,18 @@ export function FlashcardEditor({
           <EditableText
             value={card.question}
             onSave={(newQuestion) => onUpdateCard(card.id, { question: newQuestion })}
-            className="block w-full text-gray-900"
+            className="block w-full text-black/90"
           />
         </div>
       </div>
 
       <div className="px-4 py-3">
         <div className="space-y-1">
-          <label className="text-xs font-medium text-gray-500">Answer</label>
+          <label className="text-xs font-medium text-black/70">Answer</label>
           <EditableText
             value={card.answer}
             onSave={(newAnswer) => onUpdateCard(card.id, { answer: newAnswer })}
-            className="block w-full text-gray-700"
+            className="block w-full text-black/90"
           />
         </div>
       </div>

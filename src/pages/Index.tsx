@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/lib/supabase";
 import { Database } from "@/types/database";
-import { Palette, Trash2, Play, Plus, ScrollText, Files, Settings, LogOut, ChevronDown, Upload } from "lucide-react";
+import { Palette, Trash2, Play, Plus, ScrollText, Files, Settings, LogOut, ChevronDown, Upload, ChevronLeft, ChevronRight } from "lucide-react";
 import { EditableText } from "@/components/EditableText";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { GroupCarousel } from "@/components/GroupCarousel";
@@ -28,6 +28,7 @@ import { getDocument } from 'pdfjs-dist';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { extractTextFromPDF, parseFlashcards } from '@/utils/pdf';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
@@ -350,7 +351,6 @@ const Index = () => {
 
   const handleGroupSelect = (groupId: string) => {
     setSelectedGroupId(groupId);
-    document.getElementById('add-card-section')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const deleteGroup = async (groupId: string) => {
@@ -689,9 +689,9 @@ ${text}`;
           </div>
 
           {isAdding && (
-            <div className="flex flex-col min-h-[100dvh]">
-              {/* Logo section - Keep this compact */}
-              <div className="text-center ">
+            <div className="flex flex-col h-screen">
+              {/* Logo section */}
+              <div className="flex-none text-center">
                 <img 
                   src={logo} 
                   alt="Flashyy" 
@@ -702,8 +702,8 @@ ${text}`;
                 </p>
               </div>
 
-              {/* Main content - Allow this to scroll */}
-              <div className="flex-1 overflow-y-auto">
+              {/* Main content */}
+              <div className="flex-1">
                 {/* Mobile buttons */}
                 <div className="md:hidden mt-6 mb-7">
                   <div className=" justify-center flex  mx-auto">
@@ -734,17 +734,9 @@ ${text}`;
                   />
                 </div>
 
-                {/* Add card section */}
-                
-
-
-
-                  
-
                 {/* Cards grid */}
-                <div id="add-card-section" className="grid md:grid-cols-2 gap-6">
-                  {/* Left column - Add form */}
-            <div className="space-y-6">
+                <div id="add-card-section" className="md:grid md:grid-cols-2 md:gap-6 md:pb-6">
+                <div className="space-y-6">
                     {!selectedGroupId ? (
                       <div className="text-center mt-[-15px] py-8 bg-gray-50 rounded-lg">
                         <h3 className="text-lg font-medium text-black/90 mb-2">
@@ -848,14 +840,17 @@ ${text}`;
                       </>
                     )}
                   </div>
+                
+                  {/* Left column */}
+                  
 
-                  {/* Right column - Cards list */}
+                  {/* Right column */}
                   <div className="space-y-4">
-                    <div className="flex justify-between mb-[-20px] items-center">
+                    <div className="flex justify-between mt-7 mb-[-20px] items-center">
                       <h2 className="text-lg italic md:text-xl font-semibold text-black/90 text-center md:text-left mt-4 mb-6">
                         Your Flashcards
                       </h2>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 overflow-auto">
                         <h2 className="text-xs md:text-base font-medium text-black/70 text-center md:text-left mt-4 mb-6">
                           {selectedGroupId 
                             ? `${groups.find(g => g.id === selectedGroupId)?.name} (${
@@ -876,25 +871,53 @@ ${text}`;
                       </div>
                           </div>
                     
-                    {/* Scrollable container - Vertical for desktop, Horizontal for mobile */}
-                    <div className="h-[450px] md:h-[500px] relative">
-                      <div className={cn(
-                        "absolute inset-0",
-                        "md:overflow-y-auto overflow-y-hidden",
-                        "overflow-x-auto md:overflow-x-hidden",
-                        "custom-scrollbar"
-                      )}>
-                        <div className={cn(
-                          "pb-4",
-                          "md:space-y-4",
-                          "flex md:block gap-4",
-                          "w-fit md:w-full"
-                        )}>
+                    {/* Flashcards container - Using Carousel for mobile, vertical scroll for desktop */}
+                    <div className="w-full">
+                      {/* Mobile Carousel */}
+                      <div className="md:hidden">
+                        <Carousel
+                          opts={{
+                            align: "start",
+                            loop: false,
+                            containScroll: "trimSnaps"
+                          }}
+                          className="w-full relative"
+                        >
+                          <CarouselContent>
+                            {(selectedGroupId 
+                              ? cards.filter(card => card.group_id === selectedGroupId)
+                              : cards
+                            )
+                            .sort((a, b) => {
+                              const dateA = new Date(a.created_at || 0);
+                              const dateB = new Date(b.created_at || 0);
+                              return dateB.getTime() - dateA.getTime();
+                            })
+                            .map((card) => (
+                              <CarouselItem 
+                                key={card.id} 
+                                className="basis-[88%] mb-5 pl-4 pr-4 first:pl-4 last:pr-4"
+                              >
+                                <FlashcardEditor
+                                  card={card}
+                                  groups={groups}
+                                  onUpdateCard={updateCard}
+                                  onUpdateGroup={updateGroup}
+                                  onDeleteCard={deleteCard}
+                                />
+                              </CarouselItem>
+                            ))}
+                          </CarouselContent>
+                        </Carousel>
+                      </div>
+
+                      {/* Desktop Vertical Scroll */}
+                      <div className="hidden md:block h-[500px] overflow-y-auto">
+                        <div className="space-y-4 pr-2">
                           {(selectedGroupId 
                             ? cards.filter(card => card.group_id === selectedGroupId)
                             : cards
                           )
-                          // Sort cards by created_at in descending order (newest first)
                           .sort((a, b) => {
                             const dateA = new Date(a.created_at || 0);
                             const dateB = new Date(b.created_at || 0);
@@ -908,8 +931,6 @@ ${text}`;
                               onUpdateCard={updateCard}
                               onUpdateGroup={updateGroup}
                               onDeleteCard={deleteCard}
-                              
-                           
                             />
                           ))}
                         </div>
@@ -923,19 +944,32 @@ ${text}`;
 
           {!isAdding && (
             <div className="flex flex-col min-h-[100dvh] px-4 py-2 justify-between touch-none relative">
-              {/* Background gradients remain the same */}
-              
+              {/* Background gradient balls */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                {/* Pink/Red gradient */}
+                <div className="absolute top-[10%] left-[15%] w-[400px] h-[400px] rounded-full bg-[#FFE4E4] blur-[40px] opacity-90" />
+                
+                {/* Blue gradient */}
+                <div className="absolute bottom-[20%] right-[15%] w-[350px] h-[350px] rounded-full bg-[#E4F1FF] blur-[60px] opacity-90" />
+                
+                {/* Orange/Peach gradient */}
+                <div className="absolute top-[40%] right-[25%] w-[300px] h-[300px] rounded-full bg-[#FFF3E4] blur-[20px] opacity-90" />
+                
+                {/* Green gradient */}
+                <div className="absolute bottom-[30%] left-[25%] w-[320px] h-[320px] rounded-full bg-[#E8FFE4] blur-[55px] opacity-85" />
+              </div>
+
               {/* Header */}
               <div className="text-center py-1 flex-none relative">
                 <img 
                   src={logo} 
                   alt="Flashyy" 
-                  className="h-[40px] w-auto mx-auto mb-1" 
+                  className="h-[45px] w-auto mx-auto mb-1" 
                 />
                 <p className="text-xs md:text-sm text-black/70">
                   Tap to see Answer • Swipe to navigate
                 </p>
-                      </div>
+              </div>
 
               {/* Flashcard Container */}
               <div className="flex-1 flex items-center justify-center -mt-4 md:mt-0">
@@ -952,7 +986,7 @@ ${text}`;
                 ) : (
                   <div className="text-center text-gray-500">
                     No flashcards available. Add some first!
-                      </div>
+                  </div>
                 )}
               </div>
 
