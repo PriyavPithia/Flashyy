@@ -78,13 +78,7 @@ export function FlashcardEditor({
         <div className="flex items-center gap-1">
           <Popover>
             <PopoverTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                className="h-8 w-8 p-0 hover:bg-black/5"
-              >
-                <Palette className="h-4 w-4" />
-              </Button>
+              
             </PopoverTrigger>
             <PopoverContent className="w-[270px]">
               <div className="grid grid-cols-5 gap-[5px] p-1">
