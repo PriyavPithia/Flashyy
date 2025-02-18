@@ -18,9 +18,9 @@ export function Flashcard({ question, answer, onSwipe, groupName, groupColor, di
   const [dragX, setDragX] = useState(0);
   const isMobile = useIsMobile();
 
-  // Increased thresholds for better control
-  const swipeThreshold = 100;
-  const velocityThreshold = 200;
+  // Adjusted thresholds for smoother mobile experience
+  const swipeThreshold = isMobile ? 80 : 100;
+  const velocityThreshold = isMobile ? 300 : 200;
 
   const handleDrag = (event: any, info: any) => {
     setDragX(info.offset.x);
@@ -42,7 +42,7 @@ export function Flashcard({ question, answer, onSwipe, groupName, groupColor, di
       <AnimatePresence mode="wait">
         <motion.div
           key={question}
-          className="w-full h-full"
+          className="w-full h-full touch-pan-y"
           initial={{ 
             x: direction === "left" ? 1000 : -1000,
             opacity: 0,
@@ -52,11 +52,12 @@ export function Flashcard({ question, answer, onSwipe, groupName, groupColor, di
             x: 0,
             opacity: 1,
             scale: 1,
-            rotate: dragX * 0.03,
+            rotate: dragX * 0.02,
             transition: {
               type: "spring",
-              duration: 0.7,
-              bounce: 0.3
+              duration: 0.8,
+              bounce: 0.2,
+              damping: 20
             }
           }}
           exit={{ 
@@ -64,14 +65,15 @@ export function Flashcard({ question, answer, onSwipe, groupName, groupColor, di
             opacity: 0,
             scale: 0.95,
             transition: { 
-              duration: 0.4,
+              duration: 0.5,
               ease: "easeOut"
             }
           }}
           drag="x"
           dragDirectionLock
           dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.7}
+          dragElastic={0.4}
+          dragMomentum={false}
           onDrag={handleDrag}
           onDragStart={() => setIsDragging(true)}
           onDragEnd={handleDragEnd}
