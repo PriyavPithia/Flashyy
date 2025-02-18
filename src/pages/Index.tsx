@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/lib/supabase";
 import { Database } from "@/types/database";
-import { Palette, Trash2, Play, Plus, ScrollText, Files, Settings, LogOut } from "lucide-react";
+import { Palette, Trash2, Play, Plus, ScrollText, Files, Settings, LogOut, ChevronDown, Upload } from "lucide-react";
 import { EditableText } from "@/components/EditableText";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { GroupCarousel } from "@/components/GroupCarousel";
@@ -23,13 +23,20 @@ import { Folder } from "lucide-react";
 import { PracticeSetup } from "@/components/PracticeSetup";
 import logo from "../../public/assets/flashyylogo.png";
 import { cn } from "@/lib/utils";
+import { FlashcardEditor } from "@/components/FlashcardEditor";
+import { getDocument } from 'pdfjs-dist';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { extractTextFromPDF, parseFlashcards } from '@/utils/pdf';
+
+// Initialize Gemini
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
 const Index = () => {
   const [cards, setCards] = useState<Card[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isAdding, setIsAdding] = useState(true);
-  const [addMode, setAddMode] = useState<"single" | "bulk">("single");
+  const [addMode, setAddMode] = useState<"single" | "bulk" | "file">("single");
   const [selectedGroupId, setSelectedGroupId] = useState<string>("");
   const [newGroupName, setNewGroupName] = useState("");
   const [selectedColor, setSelectedColor] = useState<GroupColor>(GROUP_COLORS.softGray);
@@ -41,6 +48,9 @@ const Index = () => {
   const [showPracticeSetup, setShowPracticeSetup] = useState(false);
   const [practiceCards, setPracticeCards] = useState<Card[]>([]);
   const [currentPracticeSetup, setCurrentPracticeSetup] = useState<string[]>([]);
+  const [expandedCardIds, setExpandedCardIds] = useState<string[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingStatus, setProcessingStatus] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -55,7 +65,7 @@ const Index = () => {
         .from('groups')
         .select('*')
         .eq('user_id', user?.id)
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setGroups(data || []);
@@ -71,7 +81,7 @@ const Index = () => {
         .from('cards')
         .select('*')
         .eq('user_id', user?.id)
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setCards(data || []);
@@ -236,33 +246,34 @@ const Index = () => {
 
   const updateGroup = async (groupId: string, updates: Partial<Group>) => {
     try {
-      // First, validate that the group exists and belongs to the user
-      const { data: existingGroup } = await supabase
-        .from('groups')
-        .select('*')
-        .eq('id', groupId)
-        .single();
+      // Find the group to update
+      const groupToUpdate = groups.find(g => g.id === groupId);
+      if (!groupToUpdate) return;
 
-      if (!existingGroup) {
-        throw new Error('Group not found');
-      }
+      // Immediately update the UI (optimistic update)
+      setGroups(prev => prev.map(group => 
+        group.id === groupId 
+          ? { ...group, ...updates }
+          : group
+      ));
 
+      // Make the API call
       const { error } = await supabase
         .from('groups')
-        .update({
-          ...updates,
-          user_id: user?.id // ensure user_id is included
-        })
-        .eq('id', groupId);
+        .update(updates)
+        .eq('id', groupId)
+        .eq('user_id', user?.id);
 
-      if (error) throw error;
-      
-      // Update local state
-      setGroups(prev => prev.map(group => 
-        group.id === groupId ? { ...group, ...updates } : group
-      ));
-      
-      toast.success('Group updated successfully!');
+      if (error) {
+        // If there's an error, revert the changes
+        setGroups(prev => prev.map(group => 
+          group.id === groupId 
+            ? groupToUpdate
+            : group
+        ));
+        throw error;
+      }
+
     } catch (error) {
       console.error('Error updating group:', error);
       toast.error('Failed to update group');
@@ -372,6 +383,151 @@ const Index = () => {
     }
   };
 
+  const handleToggleExpand = (cardId: string) => {
+    setExpandedCardIds(prev => 
+      prev.includes(cardId) 
+        ? prev.filter(id => id !== cardId)
+        : [cardId]  // Replace with [cardId] to allow only one card expanded at a time
+    );
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    try {
+      setIsProcessing(true);
+      
+      // Step 1: Parse PDF
+      setProcessingStatus('Parsing PDF...');
+      console.log('Starting PDF extraction for file:', file.name);
+      const text = await extractTextFromPDF(file);
+      
+      // Calculate approximate word count and pages
+      const wordCount = text.split(/\s+/).length;
+      const pageCount = (text.match(/Page \d+:/g) || []).length;
+      console.log('Document stats:', { wordCount, pageCount });
+      
+      // Calculate minimum number of flashcards
+      const minCards = Math.max(
+        wordCount < 1000 ? 20 : 60,
+        pageCount * 8
+      );
+      
+      // Step 2: Send to Gemini
+      setProcessingStatus('Generating flashcards with AI...');
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+      
+      const prompt = `You are a University Professor creating a comprehensive set of flashcards for your students. Your task is to create detailed flashcards that thoroughly cover every concept in the document.
+
+IMPORTANT: You must create at least ${minCards} flashcards from this text. This is a strict minimum requirement.
+
+Format each flashcard exactly as shown:
+Q: [question here]
+A: [answer here]
+
+Requirements:
+- Create AT LEAST ${minCards} flashcards (this is mandatory)
+- Create 5-6 flashcards for each major concept or section
+- Do not use any bold text or markdown formatting
+- Start each question with "Q: " and each answer with "A: "
+- Separate each Q&A pair with a newline
+- Questions and answers should be detailed (at least 20 words each)
+- Break down complex topics into multiple related flashcards
+- Include both factual and analytical questions
+- For each main point, create flashcards that cover:
+  * Core concept explanation
+  * Supporting details and examples
+  * Practical applications
+  * Relationships with other concepts
+  * Critical analysis questions
+  * Problem-solving scenarios
+
+Example of breaking down a concept into multiple cards:
+Hardware Components
+Flashcard 1
+Q: Why is the control unit of the CPU essential in a computer system, and how does it interact with other components?
+A: The control unit interprets software instructions and directs activities of other components, ensuring synchronized execution of tasks. It communicates through the bus system, managing data flow between input, memory, and processing units.
+
+Flashcard 2
+Q: How does cache memory improve processing speed, and why is it different from primary memory?
+A: Cache memory provides high-speed, temporary storage close to the processor, reducing the time needed to access frequently used instructions. Unlike primary memory, cache operates faster but has significantly lower capacity.
+
+Flashcard 3
+Q: Explain how parallel computing differs from multiprocessing. In what scenarios would one be preferred over the other?
+A: Parallel computing executes the same task on multiple processors simultaneously, ideal for large-scale data processing. Multiprocessing, in contrast, runs different tasks on multiple processors, which is better suited for multitasking environments.
+
+Flashcard 4
+Q: What role do coprocessors play in specialized computing tasks, and how do they enhance overall performance?
+A: Coprocessors handle specific types of instructions (e.g., mathematical calculations, graphics rendering) while the CPU executes other tasks, thus optimizing efficiency and reducing processing bottlenecks.
+
+Flashcard 5
+Q: Discuss the implications of Moores Law on long-term hardware development. What are the physical and economic limitations of this trend?
+A: While Moores Law suggests doubling processing power every two years, physical constraints such as heat dissipation and atomic-scale transistor limits, along with increasing production costs, challenge its continued applicability.
+
+Software Components
+Flashcard 6
+Q: Why is hardware independence an important function of an operating system, and how does it impact software development?
+A: Hardware independence allows software to run on different systems without modification, simplifying development and enhancing compatibility across diverse computing environments.
+
+Flashcard 7
+Q: What is middleware, and why is it crucial in modern enterprise computing?
+A: Middleware bridges different software applications, enabling communication and data exchange between systems. It is essential in distributed computing environments like cloud services and enterprise networks.
+
+Flashcard 8
+Q: Compare and contrast the role of a compiler and an interpreter in program execution. What are the advantages and disadvantages of each?
+A: A compiler translates the entire source code before execution, making programs run faster but requiring compilation time. An interpreter executes code line by line, allowing for real-time debugging but leading to slower execution speeds.
+
+Flashcard 9
+Q: In what scenarios would a company benefit from using Software as a Service (SaaS) rather than traditional software deployment?
+A: SaaS reduces upfront costs, provides scalability, and simplifies maintenance. It is ideal for businesses needing remote access, frequent updates, and lower IT infrastructure investment. However, it relies on internet connectivity and raises security concerns.
+
+Flashcard 10
+Q: How does the concept of a "software sphere of influence" shape the design and implementation of different types of software?
+A: The sphere of influence (personal, workgroup, or enterprise) determines the software's functionality, scalability, and integration needs, guiding its architecture and user experience design.
+
+Remember: You MUST create at least ${minCards} flashcards. Here's the text to convert into flashcards:
+
+${text}`;
+
+      console.log('Sending prompt to Gemini:', prompt);
+      
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const flashcardsText = response.text();
+      console.log('Received Gemini response:', flashcardsText);
+      
+      // Step 3: Parse AI response into flashcards
+      setProcessingStatus('Processing flashcards...');
+      const flashcards = parseFlashcards(flashcardsText);
+      console.log('Parsed flashcards:', flashcards);
+      
+      // Step 4: Bulk add cards
+      if (flashcards.length > 0) {
+        await handleBulkAdd(flashcards);
+        toast.success(`${flashcards.length} cards added successfully!`);
+      } else {
+        toast.error('No valid flashcards were generated');
+      }
+      
+      // Reset the file input after successful processing
+      if (e.target) {
+        e.target.value = '';
+      }
+      
+      setIsProcessing(false);
+      
+    } catch (error) {
+      console.error('Error processing file:', error);
+      toast.error('Failed to process file');
+      setIsProcessing(false);
+      // Also reset the file input on error
+      if (e.target) {
+        e.target.value = '';
+      }
+    }
+  };
+
   return <div className="flex h-screen">
     {/* Sidebar */}
     <div className="w-64 bg-gray-50 border-r p-4 hidden md:block">
@@ -430,6 +586,14 @@ const Index = () => {
                 <Files className="mr-2 h-4 w-4" />
                   Bulk Add
                 </Button>
+              <Button 
+                variant={addMode === "file" ? "default" : "outline"} 
+                onClick={() => setAddMode("file")} 
+                className="w-full justify-start"
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                  Upload File
+                </Button>
             </>
           )}
         </div>
@@ -463,10 +627,13 @@ const Index = () => {
       !isAdding && isMobile ? "overflow-hidden" : "overflow-auto"
     )}>
       <div className={cn(
-        "px-[20px] h-full pt-[20px] pb-[15px]",
-        !isAdding && isMobile && "fixed inset-0 bg-white"
+        "h-full",
+        !isAdding ? "p-0" : "px-[20px] pt-[20px] pb-[15px]"
       )}>
-        <div className="max-w-4xl mx-auto h-[80%]">
+        <div className={cn(
+          "h-full",
+          !isAdding ? "max-w-none" : "max-w-4xl mx-auto"
+        )}>
           <div className="">
             
             
@@ -485,7 +652,7 @@ const Index = () => {
                   alt="Flashyy" 
                   className="h-[45px] w-auto mx-auto mb-1" 
                 />
-                <p className="text-gray-600 text-sm">
+                <p className="text-black/70 text-sm">
                   Add new flashcards to your collection
                 </p>
               </div>
@@ -523,67 +690,126 @@ const Index = () => {
                 </div>
 
                 {/* Add card section */}
-                {selectedGroupId && (
-                  <div className="mb-6 px-4">
-                    <h3 className="text-xl font-medium text-center  mb-4">
-                      Adding cards to: {groups.find(g => g.id === selectedGroupId)?.name}
-                    </h3>
-                    <div className="flex my-8 justify-center gap-3">
-                      <button
-                        onClick={() => setAddMode("single")}
-                        className={cn(
-                          "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center",
-                          addMode === "single" 
-                            ? "bg-black text-white" 
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                        )}
-                      >
-                        <Plus className="mr-2 h-4 w-4" />
-                        Single Card
-                      </button>
-                      <button
-                        onClick={() => setAddMode("bulk")}
-                        className={cn(
-                          "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center",
-                          addMode === "bulk" 
-                            ? "bg-black text-white" 
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                        )}
-                      >
-                        <Files className="mr-2 h-4 w-4" />
-                        Bulk Add
-                      </button>
-                    </div>
-                  </div>
-                )}
+                
+
+
+
+                  
 
                 {/* Cards grid */}
                 <div id="add-card-section" className="grid md:grid-cols-2 gap-6">
                   {/* Left column - Add form */}
             <div className="space-y-6">
                     {!selectedGroupId ? (
-                      <div className="text-center mt-4 py-8 bg-gray-50 rounded-lg">
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      <div className="text-center mt-[-15px] py-8 bg-gray-50 rounded-lg">
+                        <h3 className="text-lg font-medium text-black/90 mb-2">
                           Select a Group
                         </h3>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-black/70">
                           Click on a group above to add cards to it
                         </p>
                       </div>
                     ) : (
-                      <div>
-                        {addMode === "single" ? (
-                          <AddCardForm onAdd={handleAddCard} />
-                        ) : (
-                          <BulkAddForm onAdd={handleBulkAdd} />
-                        )}
-                      </div>
+                      <>
+                        <h3 className="text-lg md:text-xl italic font-medium text-left mt-[-15px] md:mt-4 mb-4">
+                          Adding cards to: {groups.find(g => g.id === selectedGroupId)?.name}
+                        </h3>
+                        <div className="flex md:justify-start justify-between gap-3 flex-wrap">
+                          <button
+                            onClick={() => setAddMode("single")}
+                            className={cn(
+                              "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center",
+                              addMode === "single" 
+                                ? "bg-black text-white" 
+                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                            )}
+                          >
+                            <Plus className="mr-2 h-4 w-4" />
+                            Single
+                          </button>
+                          <button
+                            onClick={() => setAddMode("bulk")}
+                            className={cn(
+                              "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center",
+                              addMode === "bulk" 
+                                ? "bg-black text-white" 
+                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                            )}
+                          >
+                            <Files className="mr-2 h-4 w-4" />
+                            Bulk
+                          </button>
+                          <button
+                            onClick={() => setAddMode("file")}
+                            className={cn(
+                              "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center",
+                              addMode === "file" 
+                                ? "bg-black text-white" 
+                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                            )}
+                          >
+                            <Upload className="mr-2 h-4 w-4" />
+                            File Upload
+                          </button>
+                        </div>
+                        <div>
+                          {addMode === "single" ? (
+                            <AddCardForm onAdd={handleAddCard} />
+                          ) : addMode === "bulk" ? (
+                            <BulkAddForm onAdd={handleBulkAdd} />
+                          ) : (
+                            <div className="space-y-4 w-full max-w-md">
+                              <div className={cn(
+                                "border-2 border-dashed border-gray-200 rounded-lg p-8 text-center",
+                                "hover:border-gray-300 transition-all",
+                                isProcessing && "opacity-50 pointer-events-none"
+                              )}>
+                                <input
+                                  type="file"
+                                  id="file-upload"
+                                  className="hidden"
+                                  accept=".pdf"
+                                  onChange={handleFileUpload}
+                                  disabled={isProcessing}
+                                />
+                                <label 
+                                  htmlFor="file-upload"
+                                  className="cursor-pointer flex flex-col items-center"
+                                >
+                                  {isProcessing ? (
+                                    <>
+                                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mb-2" />
+                                      <p className="text-sm font-medium text-gray-900 mb-1">
+                                        {processingStatus}
+                                      </p>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                                      <p className="text-sm font-medium text-gray-900 mb-1">
+                                        Click to upload or drag and drop
+                                      </p>
+                                      <p className="text-xs text-gray-500">
+                                        PDF files only (max 10MB)
+                                      </p>
+                                    </>
+                                  )}
+                                </label>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </>
                     )}
                   </div>
 
                   {/* Right column - Cards list */}
                   <div className="space-y-4">
-                    <h2 className="text-xl font-semibold text-center mt-4 mb-6">
+                    <div className="flex justify-between mb-[-20px] items-center">
+                      <h2 className="text-lg italic md:text-xl font-semibold text-black/90 text-center md:text-left mt-4 mb-6">
+                        Your Flashcards
+                      </h2>
+                    <h2 className="text-xs md:text-base font-medium text-black/70 text-center md:text-left mt-4 mb-6">
                       {selectedGroupId 
                         ? `${groups.find(g => g.id === selectedGroupId)?.name} (${
                             cards.filter(card => card.group_id === selectedGroupId).length
@@ -591,88 +817,45 @@ const Index = () => {
                         : `All Flashcards (${cards.length})`
                       }
                     </h2>
-                    {/* Fixed height scrollable container */}
-                    <div className="h-[600px] overflow-y-auto pr-4 custom-scrollbar">
-              <div className="space-y-4">
-                        {(selectedGroupId 
-                          ? cards.filter(card => card.group_id === selectedGroupId)
-                          : cards
-                        ).map((card) => (
-                          <div 
-                            key={card.id} 
-                            className="rounded-xl shadow-md p-4 space-y-2 transition-all hover:shadow-lg"
-                            style={{
-                              backgroundColor: groups.find(g => g.id === card.group_id)?.color || GROUP_COLORS.softGray
-                            }}
-                          >
-                            <div className="flex items-center justify-between border-b border-gray-300 pb-2">
-                <div className="flex items-center ">
-                                <div 
-                                  className=" h-2 rounded-full" 
-                                  style={{ backgroundColor: groups.find(g => g.id === card.group_id)?.color || GROUP_COLORS.softGray }}
-                                />
-                                <EditableText
-                                  value={groups.find(g => g.id === card.group_id)?.name || 'Ungrouped'}
-                                  onSave={(newName) => groups.find(g => g.id === card.group_id) && updateGroup(card.group_id, { name: newName })}
-                                  className="text-md ml-[-8px] font-medium text-gray-700"
-                                />
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Popover>
-                                  <PopoverTrigger asChild>
-                                    <Button 
-                                      variant="ghost" 
-                                      size="sm"
-                                      className="h-8 w-8 p-0 hover:bg-black/5"
-                                    >
-                                      <Palette className="h-4 w-4" />
-                                    </Button>
-                                  </PopoverTrigger>
-                                  <PopoverContent className="w-[270px]">
-                                    <div className="grid grid-cols-5 gap-[2px] p-1">
-                                      {Object.entries(GROUP_COLORS).map(([name, color]) => (
-                                        <div
-                                          key={color}
-                                          className={`w-9 h-9 rounded-md cursor-pointer transition-all ${
-                                            groups.find(g => g.id === card.group_id)?.color === color ? "ring-1 ring-black" : ""
-                                          }`}
-                                          style={{ backgroundColor: color }}
-                                          onClick={() => groups.find(g => g.id === card.group_id) && updateGroup(card.group_id, { color })}
-                                        />
-                                      ))}
-                                    </div>
-                                  </PopoverContent>
-                                </Popover>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  className="h-8 w-8 p-0 hover:bg-black/5"
-                                  onClick={() => deleteCard(card.id)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </div>
-                            <div className="space-y-3">
-                              <div className="space-y-1">
-                                <label className="text-xs font-medium text-gray-500">Question</label>
-                                <EditableText
-                                  value={card.question}
-                                  onSave={(newQuestion) => updateCard(card.id, { question: newQuestion })}
-                                  className="block w-full text-gray-900"
-                                />
-                                </div>
-                              <div className="space-y-1">
-                                <label className="text-xs font-medium text-gray-500">Answer</label>
-                                <EditableText
-                                  value={card.answer}
-                                  onSave={(newAnswer) => updateCard(card.id, { answer: newAnswer })}
-                                  className="block w-full text-gray-700"
-                                />
-                              </div>
-                        </div>
                           </div>
-                        ))}
+                    
+                    {/* Scrollable container - Vertical for desktop, Horizontal for mobile */}
+                    <div className="h-[450px] md:h-[500px] relative">
+                      <div className={cn(
+                        "absolute inset-0",
+                        "md:overflow-y-auto overflow-y-hidden",
+                        "overflow-x-auto md:overflow-x-hidden",
+                        "custom-scrollbar"
+                      )}>
+                        <div className={cn(
+                          "pb-4",
+                          "md:space-y-4",
+                          "flex md:block gap-4",
+                          "w-fit md:w-full"
+                        )}>
+                          {(selectedGroupId 
+                            ? cards.filter(card => card.group_id === selectedGroupId)
+                            : cards
+                          )
+                          // Sort cards by created_at in descending order (newest first)
+                          .sort((a, b) => {
+                            const dateA = new Date(a.created_at || 0);
+                            const dateB = new Date(b.created_at || 0);
+                            return dateB.getTime() - dateA.getTime();
+                          })
+                          .map((card) => (
+                            <FlashcardEditor
+                              key={card.id}
+                              card={card}
+                              groups={groups}
+                              onUpdateCard={updateCard}
+                              onUpdateGroup={updateGroup}
+                              onDeleteCard={deleteCard}
+                              isExpanded={expandedCardIds.includes(card.id)}
+                              onToggleExpand={handleToggleExpand}
+                            />
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -682,15 +865,30 @@ const Index = () => {
           )}
 
           {!isAdding && (
-            <div className="flex flex-col min-h-[calc(100dvh-35px)] justify-between overflow-hidden touch-none">
-              {/* Header */}
-              <div className="text-center py-2 flex-none">
+            <div className="flex flex-col px-4 py-4 min-h-screen justify-between overflow-hidden touch-none relative">
+              {/* Background gradient balls */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                {/* Pink/Red gradient */}
+                <div className="absolute top-[10%] left-[15%] w-[400px] h-[400px] rounded-full bg-[#FFE4E4] blur-[40px] opacity-90" />
+                
+                {/* Blue gradient */}
+                <div className="absolute bottom-[20%] right-[15%] w-[350px] h-[350px] rounded-full bg-[#E4F1FF] blur-[60px] opacity-90" />
+                
+                {/* Orange/Peach gradient */}
+                <div className="absolute top-[40%] right-[25%] w-[300px] h-[300px] rounded-full bg-[#FFF3E4] blur-[20px] opacity-90" />
+                
+                {/* Green gradient */}
+                <div className="absolute bottom-[30%] left-[25%] w-[320px] h-[320px] rounded-full bg-[#E8FFE4] blur-[55px] opacity-85" />
+            </div>
+            
+              {/* Existing content */}
+              <div className="text-center py-2 flex-none relative">
                 <img 
                   src={logo} 
                   alt="Flashyy" 
                   className="h-[45px] w-auto mx-auto mb-1" 
                 />
-                <p className="text-gray-600 text-sm">
+                <p className="text-black/70 text-sm">
                   Tap to see Answer • Swipe to navigate
                 </p>
                       </div>
@@ -717,10 +915,10 @@ const Index = () => {
               {/* Footer */}
               {cards.length > 0 && (
                 <div className="text-center py-2 flex-none">
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-black/70">
                     Flashcard {currentCardIndex + 1} of {practiceCards.length}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-xs text-black/70 mt-1">
                     Currently practicing: {getPracticeSetupText()} • 
                     <button 
                       onClick={() => setShowPracticeSetup(true)}

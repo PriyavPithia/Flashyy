@@ -5,9 +5,10 @@ interface EditableTextProps {
   value: string
   onSave: (newValue: string) => void
   className?: string
+  isCollapsed?: boolean
 }
 
-export function EditableText({ value, onSave, className = "" }: EditableTextProps) {
+export function EditableText({ value, onSave, className = "", isCollapsed = false }: EditableTextProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editValue, setEditValue] = useState(value)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -37,6 +38,10 @@ export function EditableText({ value, onSave, className = "" }: EditableTextProp
       onSave(editValue.trim())
     }
     setIsEditing(false)
+  }
+
+  if (isCollapsed) {
+    return null;
   }
 
   if (isEditing) {

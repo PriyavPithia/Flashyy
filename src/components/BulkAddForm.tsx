@@ -55,7 +55,8 @@ export const BulkAddForm = ({
           </pre>
           Separate pairs with empty lines
         </div>
-        <Textarea id="bulkText" value={text} onChange={e => setText(e.target.value)} placeholder="Q: What is React?\nA: A JavaScript library for building user interfaces.\n\nQ: What is JSX?\nA: A syntax extension for JavaScript..." className="w-full min-h-[200px] font-mono text-base" />
+        <Textarea id="bulkText"  value={text} onChange={e => setText(e.target.value)} placeholder="Q: What is React?\nA: A JavaScript library for building user interfaces.\n\nQ: What is JSX?\nA: A syntax extension for JavaScript..." 
+        className="w-full min-h-[200px] " />
       </div>
       <Button type="submit" className="w-full bg-black text-white">
         Add Flashcards

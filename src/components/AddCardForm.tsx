@@ -33,11 +33,12 @@ export const AddCardForm = ({
           Question
         </label>
         <Input 
+       
           id="question" 
           value={question} 
           onChange={e => setQuestion(e.target.value)} 
           placeholder="Enter your question" 
-          className="w-full text-base"
+          className="w-full"
         />
       </div>
       <div className="space-y-2">
