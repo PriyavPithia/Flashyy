@@ -62,7 +62,7 @@ export function FloatingNav({
         ref={buttonRef}
         variant="outline"
         size="icon"
-        className="h-10 w-10 rounded-full bg-white shadow-md"
+        className="h-10 w-10 border-black/10 rounded-full bg-transparent hover:bg-transparent shadow-md"
         onClick={() => setIsOpen(!isOpen)}
       >
         {isOpen ? (

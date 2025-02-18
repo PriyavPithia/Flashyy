@@ -969,7 +969,7 @@ ${text}`;
                   alt="Flashyy" 
                   className="h-[45px] w-auto mx-auto mb-1" 
                 />
-                <p className="text-xs md:text-sm text-black/70">
+                <p className="text-xs mb-5 md:text-sm text-black/70">
                   Tap to see Answer • Swipe to navigate
                 </p>
               </div>
@@ -996,7 +996,7 @@ ${text}`;
               {/* Footer */}
               {cards.length > 0 && (
                 <div className="text-center py-1 flex-none">
-                  <p className="text-xs md:text-sm text-black/70">
+                  <p className="text-xs mt-[-30px] md:text-sm text-black/70">
                     Flashcard {currentCardIndex + 1} of {practiceCards.length}
                   </p>
                   <p className="text-xs text-black/70 mt-0.5">
