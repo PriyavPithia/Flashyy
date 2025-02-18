@@ -944,20 +944,21 @@ ${text}`;
 
           {!isAdding && (
             <div className="flex flex-col min-h-[100dvh] px-4 py-2 justify-between touch-none relative">
-              {/* Lighter gradient background */}
+              {/* Lighter gradient background - More visible */}
               <div 
-                className="absolute inset-0 pointer-events-none opacity-50"
+                className="absolute inset-0 pointer-events-none opacity-75"
                 style={{
                   background: `
                     linear-gradient(
                       45deg,
-                      #f5f3ff 0%,
-                      #eff6ff 25%,
-                      #fff7ed 50%,
-                      #f0fdf4 75%,
-                      #f5f3ff 100%
+                      #e9d5ff 0%,
+                      #dbeafe 25%,
+                      #ffedd5 50%,
+                      #dcfce7 75%,
+                      #e9d5ff 100%
                     )
                   `,
+                  backgroundSize: '400% 400%',
                 }}
               />
 
