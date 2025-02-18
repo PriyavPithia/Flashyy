@@ -944,20 +944,22 @@ ${text}`;
 
           {!isAdding && (
             <div className="flex flex-col min-h-[100dvh] px-4 py-2 justify-between touch-none relative">
-              {/* Background gradient balls */}
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {/* Pink/Red gradient */}
-                <div className="absolute top-[10%] left-[15%] w-[400px] h-[400px] rounded-full bg-[#FFE4E4] blur-[40px] opacity-90" />
-                
-                {/* Blue gradient */}
-                <div className="absolute bottom-[20%] right-[15%] w-[350px] h-[350px] rounded-full bg-[#E4F1FF] blur-[60px] opacity-90" />
-                
-                {/* Orange/Peach gradient */}
-                <div className="absolute top-[40%] right-[25%] w-[300px] h-[300px] rounded-full bg-[#FFF3E4] blur-[20px] opacity-90" />
-                
-                {/* Green gradient */}
-                <div className="absolute bottom-[30%] left-[25%] w-[320px] h-[320px] rounded-full bg-[#E8FFE4] blur-[55px] opacity-85" />
-              </div>
+              {/* Lighter gradient background */}
+              <div 
+                className="absolute inset-0 pointer-events-none opacity-50"
+                style={{
+                  background: `
+                    linear-gradient(
+                      45deg,
+                      #f5f3ff 0%,
+                      #eff6ff 25%,
+                      #fff7ed 50%,
+                      #f0fdf4 75%,
+                      #f5f3ff 100%
+                    )
+                  `,
+                }}
+              />
 
               {/* Header */}
               <div className="text-center py-1 flex-none relative">
