@@ -85,7 +85,7 @@ export function GroupCarousel({
               <Plus className="h-4 w-4 text-white" />
             </button>
           </DialogTrigger>
-          <DialogContent className="top-4 translate-y-0 sm:top-4 sm:translate-y-0 rounded-t-xl">
+          <DialogContent className="top-4 translate-y-0 sm:top-4 sm:translate-y-0 rounded-xl">
             <DialogHeader>
               <DialogTitle>Create New Group</DialogTitle>
             </DialogHeader>
@@ -106,11 +106,11 @@ export function GroupCarousel({
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Color</label>
-                <div className="grid grid-cols-5 gap-[2px] p-1">
+                <div className="grid grid-cols-6 gap-[5px] p-1">
                   {Object.entries(GROUP_COLORS).map(([name, color]) => (
                     <div
                       key={color}
-                      className={`w-9 h-9 rounded-md cursor-pointer transition-all ${
+                      className={`w-12 h-11 rounded-md  cursor-pointer transition-all ${
                         selectedColor === color ? "ring-1 ring-black" : ""
                       }`}
                       style={{ backgroundColor: color }}
@@ -160,19 +160,19 @@ export function GroupCarousel({
             {/* Add Group Button */}
             <button
               onClick={() => setIsAddingGroup(true)}
-              className="flex-none w-[180px] h-[121px] md:h-[131px] rounded-xl bg-black/5 
-                         hover:bg-black/10 transition-colors flex items-center 
+              className="flex-none w-[120px] md:w-[180px] h-[120px] md:h-[130px] rounded-xl bg-black/5 
+                         hover:bg-black/10 transition-colors flex flex-col items-center 
                          justify-center gap-2 group/add shadow-sm ml-[-20px] "
             >
               <Plus className="h-5 w-5 text-black/70 group-hover/add:scale-110 transition-transform" />
-              <span className="font-medium text-black/70">New Group</span>
+              <span className="text-sm md:text-base font-medium text-black/70">New Group</span>
             </button>
 
             {/* Group Cards */}
             {groups.map((group) => (
               <div 
                 key={group.id}
-                className="flex-none w-[280px] md:w-[240px] lg:w-[300px] snap-start h-[120px] md:h-[130px]"
+                className="flex-none w-[210px] md:w-[240px] lg:w-[300px] snap-start h-[120px] md:h-[130px]"
               >
                 <div
                   className={cn(
@@ -210,12 +210,12 @@ export function GroupCarousel({
                   }}
                 >
                   <div className="flex items-center justify-between" onClick={e => e.stopPropagation()}>
-                    <div className="flex items-center gap-1.5 max-w-[180px] md:max-w-[160px]">
-                      <Folder className="h-6 w-6 shrink-0 md:h-5 md:w-5 text-black/70" />
+                    <div className="flex items-center  max-w-[180px] md:max-w-[160px]">
+                      <Folder className="h-5 w-5 shrink-0 md:h-5 md:w-5 text-black/70" />
                       <EditableText
                         value={group.name}
                         onSave={(newName) => onUpdateGroup(group.id, { name: newName })}
-                        className="font-medium truncate text-lg md:text-base editable-text"
+                        className="font-medium truncate text-base md:text-base editable-text"
                       />
                     </div>
                     <div className="flex items-center gap-1">
@@ -261,7 +261,7 @@ export function GroupCarousel({
                       </Button>
                     </div>
                   </div>
-                  <p className="text-sm md:text-sm text-black/70 mt-auto">
+                  <p className="text-xs md:text-sm text-black/70 mt-auto">
                     {cards.filter(card => card.group_id === group.id).length} {cards.filter(card => card.group_id === group.id).length === 1 ? "Flashcard" : "Flashcards"}
                   </p>
                 </div>

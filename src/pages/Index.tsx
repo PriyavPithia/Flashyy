@@ -27,6 +27,7 @@ import { FlashcardEditor } from "@/components/FlashcardEditor";
 import { getDocument } from 'pdfjs-dist';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { extractTextFromPDF, parseFlashcards } from '@/utils/pdf';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
@@ -51,6 +52,8 @@ const Index = () => {
   const [expandedCardIds, setExpandedCardIds] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStatus, setProcessingStatus] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteGroupId, setDeleteGroupId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (user) {
@@ -528,6 +531,48 @@ ${text}`;
     }
   };
 
+  const handleDeleteAllCards = async (groupId?: string) => {
+    setDeleteGroupId(groupId);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      if (deleteGroupId) {
+        // Delete cards for a specific group
+        const { error } = await supabase
+          .from('cards')
+          .delete()
+          .eq('user_id', user?.id)
+          .eq('group_id', deleteGroupId);
+
+        if (error) throw error;
+        
+        // Update local state for group-specific deletion
+        setCards(prev => prev.filter(card => card.group_id !== deleteGroupId));
+        toast.success('All flashcards in this group deleted successfully!');
+      } else {
+        // Delete all cards for the user
+        const { error } = await supabase
+          .from('cards')
+          .delete()
+          .eq('user_id', user?.id)
+          .eq('group_id', selectedGroupId);
+
+        if (error) throw error;
+        
+        // Update local state to remove only cards from the current group
+        setCards(prev => prev.filter(card => card.group_id !== selectedGroupId));
+        toast.success('All flashcards in this group deleted successfully!');
+      }
+    } catch (error) {
+      console.error('Error deleting cards:', error);
+      toast.error('Failed to delete cards');
+    } finally {
+      setShowDeleteConfirm(false);
+    }
+  };
+
   return <div className="flex h-screen">
     {/* Sidebar */}
     <div className="w-64 bg-gray-50 border-r p-4 hidden md:block">
@@ -711,14 +756,14 @@ ${text}`;
                       </div>
                     ) : (
                       <>
-                        <h3 className="text-lg md:text-xl italic font-medium text-left mt-[-15px] md:mt-4 mb-4">
+                        <h3 className="text-lg md:text-xl italic font-medium text-left mt-[-15px] md:mt-4 mb-1">
                           Adding cards to: {groups.find(g => g.id === selectedGroupId)?.name}
                         </h3>
-                        <div className="flex md:justify-start justify-between gap-3 flex-wrap">
+                        <div className="flex md:justify-start justify-between gap-2  flex-wrap">
                           <button
                             onClick={() => setAddMode("single")}
                             className={cn(
-                              "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center",
+                              "px-4 py-2 rounded-full text-xs font-medium transition-all flex items-center",
                               addMode === "single" 
                                 ? "bg-black text-white" 
                                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -730,7 +775,7 @@ ${text}`;
                           <button
                             onClick={() => setAddMode("bulk")}
                             className={cn(
-                              "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center",
+                              "px-4 py-2 rounded-full text-xs font-medium transition-all flex items-center",
                               addMode === "bulk" 
                                 ? "bg-black text-white" 
                                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -742,7 +787,7 @@ ${text}`;
                           <button
                             onClick={() => setAddMode("file")}
                             className={cn(
-                              "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center",
+                              "px-4 py-2 rounded-full text-xs font-medium transition-all flex items-center",
                               addMode === "file" 
                                 ? "bg-black text-white" 
                                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -809,14 +854,25 @@ ${text}`;
                       <h2 className="text-lg italic md:text-xl font-semibold text-black/90 text-center md:text-left mt-4 mb-6">
                         Your Flashcards
                       </h2>
-                    <h2 className="text-xs md:text-base font-medium text-black/70 text-center md:text-left mt-4 mb-6">
-                      {selectedGroupId 
-                        ? `${groups.find(g => g.id === selectedGroupId)?.name} (${
-                            cards.filter(card => card.group_id === selectedGroupId).length
-                          })`
-                        : `All Flashcards (${cards.length})`
-                      }
-                    </h2>
+                      <div className="flex items-center gap-2">
+                        <h2 className="text-xs md:text-base font-medium text-black/70 text-center md:text-left mt-4 mb-6">
+                          {selectedGroupId 
+                            ? `${groups.find(g => g.id === selectedGroupId)?.name} (${
+                                cards.filter(card => card.group_id === selectedGroupId).length
+                              })`
+                            : `All Flashcards (${cards.length})`
+                          }
+                        </h2>
+                        {(selectedGroupId || cards.length > 0) && (
+                          <button
+                            onClick={() => handleDeleteAllCards(selectedGroupId)}
+                            className="mt-4 mb-6 p-1.5 rounded-full  transition-colors group"
+                            title="Delete all flashcards"
+                          >
+                            <Trash2 className="h-4 w-4 text-black/90 opacity-60 group-hover:opacity-100" />
+                          </button>
+                        )}
+                      </div>
                           </div>
                     
                     {/* Scrollable container - Vertical for desktop, Horizontal for mobile */}
@@ -851,8 +907,8 @@ ${text}`;
                               onUpdateCard={updateCard}
                               onUpdateGroup={updateGroup}
                               onDeleteCard={deleteCard}
-                              isExpanded={expandedCardIds.includes(card.id)}
-                              onToggleExpand={handleToggleExpand}
+                              
+                           
                             />
                           ))}
                         </div>
@@ -950,6 +1006,27 @@ ${text}`;
         onCancel={() => setShowPracticeSetup(false)}
       />
     )}
+
+    <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will permanently delete {deleteGroupId ? 'the group and all its' : 'all'} flashcards. 
+            This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction 
+            onClick={confirmDelete}
+            className="bg-black hover:bg-black/90"
+          >
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
     </div>;
 };
 

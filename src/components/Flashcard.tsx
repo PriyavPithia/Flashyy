@@ -15,23 +15,25 @@ export function Flashcard({ question, answer, onSwipe, groupName, groupColor, di
   const [isFlipped, setIsFlipped] = useState(false);
   const [exitX, setExitX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [dragX, setDragX] = useState(0);
   const isMobile = useIsMobile();
 
-  const swipeThreshold = 20; // Reduced from 50 to 20 for more sensitivity
-  const velocityThreshold = 100; // Reduced from 200 to 100 for quicker swipes
+  // Increased thresholds for better control
+  const swipeThreshold = 100;
+  const velocityThreshold = 200;
+
+  const handleDrag = (event: any, info: any) => {
+    setDragX(info.offset.x);
+  };
 
   const handleDragEnd = (e: any, { offset, velocity }: any) => {
     setIsDragging(false);
+    setDragX(0);
     
-    // If the drag distance is greater than threshold OR velocity is high enough
     if (Math.abs(offset.x) > swipeThreshold || Math.abs(velocity.x) > velocityThreshold) {
-      if (offset.x > 0 || velocity.x > 0) {
-        setExitX(250);
-        onSwipe("right");
-      } else {
-        setExitX(-250);
-        onSwipe("left");
-      }
+      const direction = offset.x > 0 ? "right" : "left";
+      setExitX(direction === "right" ? 1000 : -1000);
+      onSwipe(direction);
     }
   };
 
@@ -44,38 +46,39 @@ export function Flashcard({ question, answer, onSwipe, groupName, groupColor, di
           initial={{ 
             x: direction === "left" ? 1000 : -1000,
             opacity: 0,
-            scale: 0.8
+            scale: 0.95
           }}
           animate={{ 
             x: 0,
             opacity: 1,
-            scale: 1
+            scale: 1,
+            rotate: dragX * 0.03,
+            transition: {
+              type: "spring",
+              duration: 0.7,
+              bounce: 0.3
+            }
           }}
           exit={{ 
             x: exitX,
             opacity: 0,
-            scale: 0.8,
+            scale: 0.95,
             transition: { 
-              duration: 0.3,
+              duration: 0.4,
               ease: "easeOut"
             }
           }}
-          transition={{
-            type: "spring",
-            stiffness: 200,
-            damping: 25,
-            mass: 0.8,
-            opacity: { 
-              duration: 0.3
-            }
-          }}
           drag="x"
+          dragDirectionLock
           dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.9}
+          dragElastic={0.7}
+          onDrag={handleDrag}
           onDragStart={() => setIsDragging(true)}
           onDragEnd={handleDragEnd}
           whileTap={{ cursor: "grabbing" }}
-          whileDrag={{ scale: 0.98 }}
+          whileDrag={{
+            scale: 0.98
+          }}
         >
           <div 
             className={`w-full h-full transition-transform duration-500 transform-gpu preserve-3d ${isFlipped ? "rotate-y-180" : ""}`} 
@@ -104,7 +107,7 @@ export function Flashcard({ question, answer, onSwipe, groupName, groupColor, di
             <div className="absolute w-full h-full backface-hidden rotate-y-180">
               <div 
                 style={{ backgroundColor: groupColor }} 
-                className="w-full h-full backdrop-blur-sm rounded-xl shadow-lg py-6 px-2 flex flex-col"
+                className="w-full h-full backdrop-blur-sm rounded-3xl shadow-lg py-6 px-2 flex flex-col"
               >
                 <span className=" text-center text-md mt-[-5px] text-black/50 font-medium">{groupName}</span>
                 <div className="flex-1 flex flex-col justify-center">
