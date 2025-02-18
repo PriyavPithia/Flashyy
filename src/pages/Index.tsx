@@ -731,7 +731,7 @@ ${text}`;
           {isAdding && (
             <div className="flex flex-col min-h-screen">
               {/* Logo section */}
-              <div className="flex-none text-center pt-4">
+              <div className="flex-none text-center ">
                 <img 
                   src={logo} 
                   alt="Flashyy" 
