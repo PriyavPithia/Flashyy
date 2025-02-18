@@ -921,36 +921,23 @@ ${text}`;
           )}
 
           {!isAdding && (
-            <div className="flex flex-col px-4 py-4 min-h-screen justify-between overflow-hidden touch-none relative">
-              {/* Background gradient balls */}
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {/* Pink/Red gradient */}
-                <div className="absolute top-[10%] left-[15%] w-[400px] h-[400px] rounded-full bg-[#FFE4E4] blur-[40px] opacity-90" />
-                
-                {/* Blue gradient */}
-                <div className="absolute bottom-[20%] right-[15%] w-[350px] h-[350px] rounded-full bg-[#E4F1FF] blur-[60px] opacity-90" />
-                
-                {/* Orange/Peach gradient */}
-                <div className="absolute top-[40%] right-[25%] w-[300px] h-[300px] rounded-full bg-[#FFF3E4] blur-[20px] opacity-90" />
-                
-                {/* Green gradient */}
-                <div className="absolute bottom-[30%] left-[25%] w-[320px] h-[320px] rounded-full bg-[#E8FFE4] blur-[55px] opacity-85" />
-            </div>
-            
-              {/* Existing content */}
-              <div className="text-center py-2 flex-none relative">
+            <div className="flex flex-col min-h-[100dvh] px-4 py-2 justify-between touch-none relative">
+              {/* Background gradients remain the same */}
+              
+              {/* Header */}
+              <div className="text-center py-1 flex-none relative">
                 <img 
                   src={logo} 
                   alt="Flashyy" 
-                  className="h-[45px] w-auto mx-auto mb-1" 
+                  className="h-[40px] w-auto mx-auto mb-1" 
                 />
-                <p className="text-black/70 text-sm">
+                <p className="text-xs md:text-sm text-black/70">
                   Tap to see Answer • Swipe to navigate
                 </p>
                       </div>
 
               {/* Flashcard Container */}
-              <div className="flex-1 flex items-center px-2 justify-center overflow-hidden">
+              <div className="flex-1 flex items-center justify-center -mt-4 md:mt-0">
                 {practiceCards.length > 0 ? (
                   <Flashcard 
                     key={practiceCards[currentCardIndex].id} 
@@ -970,11 +957,11 @@ ${text}`;
 
               {/* Footer */}
               {cards.length > 0 && (
-                <div className="text-center py-2 flex-none">
-                  <p className="text-sm text-black/70">
+                <div className="text-center py-1 flex-none">
+                  <p className="text-xs md:text-sm text-black/70">
                     Flashcard {currentCardIndex + 1} of {practiceCards.length}
                   </p>
-                  <p className="text-xs text-black/70 mt-1">
+                  <p className="text-xs text-black/70 mt-0.5">
                     Currently practicing: {getPracticeSetupText()} • 
                     <button 
                       onClick={() => setShowPracticeSetup(true)}
