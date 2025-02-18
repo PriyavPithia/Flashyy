@@ -213,11 +213,15 @@ const Index = () => {
     } else if (cards.length === 0) {
       toast.error("Add some flashcards first!");
     } else {
+      // Reset scroll position before showing practice setup
+      window.scrollTo(0, 0);
       setShowPracticeSetup(true);
     }
   };
 
   const startPractice = (selectedCards: Card[], selectedGroups: string[]) => {
+    // Reset scroll position when starting practice
+    window.scrollTo(0, 0);
     setShowPracticeSetup(false);
     setIsAdding(false);
     setPracticeCards(shuffleCards(selectedCards));
@@ -573,7 +577,43 @@ ${text}`;
     }
   };
 
-  return <div className="flex h-screen">
+  // Add this useEffect to handle history and prevent authentication loop
+  useEffect(() => {
+    if (!isAdding) {
+      // Push a new state to history when entering practice mode
+      window.history.pushState({ practice: true }, '');
+    }
+
+    // Handle back button
+    const handlePopState = (event: PopStateEvent) => {
+      if (!event.state?.practice && !isAdding) {
+        // If going back from practice mode, return to add cards
+        setIsAdding(true);
+        window.scrollTo(0, 0);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [isAdding]);
+
+  // Add this useEffect to handle body scroll locking
+  useEffect(() => {
+    if (showPracticeSetup) {
+      // Lock scrolling when practice setup is shown
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Restore scrolling when practice setup is closed
+      document.body.style.overflow = 'auto';
+    }
+
+    // Cleanup
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [showPracticeSetup]);
+
+  return <div className="flex ">
     {/* Sidebar */}
     <div className="w-64 bg-gray-50 border-r p-4 hidden md:block">
       <div className="space-y-4">
@@ -689,9 +729,9 @@ ${text}`;
           </div>
 
           {isAdding && (
-            <div className="flex flex-col h-screen">
+            <div className="flex flex-col min-h-screen">
               {/* Logo section */}
-              <div className="flex-none text-center">
+              <div className="flex-none text-center pt-4">
                 <img 
                   src={logo} 
                   alt="Flashyy" 
@@ -702,8 +742,8 @@ ${text}`;
                 </p>
               </div>
 
-              {/* Main content */}
-              <div className="flex-1">
+              {/* Main content - Adjusted overflow handling */}
+              <div className="flex-1 overflow-x-hidden">
                 {/* Mobile buttons */}
                 <div className="md:hidden mt-6 mb-7">
                   <div className=" justify-center flex  mx-auto">
@@ -734,9 +774,9 @@ ${text}`;
                   />
                 </div>
 
-                {/* Cards grid */}
-                <div id="add-card-section" className="md:grid md:grid-cols-2 md:gap-6 md:pb-6">
-                <div className="space-y-6">
+                {/* Cards grid - Adjusted container */}
+                <div id="add-card-section" className="md:grid md:grid-cols-2 gap-6  md:pb-6">
+            <div className="space-y-6">
                     {!selectedGroupId ? (
                       <div className="text-center mt-[-15px] py-8 bg-gray-50 rounded-lg">
                         <h3 className="text-lg font-medium text-black/90 mb-2">
@@ -896,7 +936,7 @@ ${text}`;
                             .map((card) => (
                               <CarouselItem 
                                 key={card.id} 
-                                className="basis-[88%] mb-[100px] pl-4 pr-4 first:pl-4 last:pr-4"
+                                className="basis-[88%]  pl-4 pr-4 first:pl-4 last:pr-4"
                               >
                                 <FlashcardEditor
                                   card={card}
@@ -972,7 +1012,7 @@ ${text}`;
                 <p className="text-xs mb-5 md:text-sm text-black/70">
                   Tap to see Answer • Swipe to navigate
                 </p>
-              </div>
+                      </div>
 
               {/* Flashcard Container */}
               <div className="flex-1 flex items-center justify-center -mt-4 md:mt-0">
@@ -989,7 +1029,7 @@ ${text}`;
                 ) : (
                   <div className="text-center text-gray-500">
                     No flashcards available. Add some first!
-                  </div>
+                      </div>
                 )}
               </div>
 
@@ -1024,12 +1064,17 @@ ${text}`;
       showPracticeSetup={!isAdding} children={""}    />
 
     {showPracticeSetup && (
-      <PracticeSetup
-        groups={groups}
-        cards={cards}
-        onStart={startPractice}
-        onCancel={() => setShowPracticeSetup(false)}
-      />
+      <div className="fixed inset-0 backdrop-blur-[2px] z-50 flex items-center justify-center p-4 overflow-hidden">
+        <PracticeSetup
+          groups={groups}
+          cards={cards}
+          onStart={startPractice}
+          onCancel={() => {
+            setShowPracticeSetup(false);
+            document.body.style.overflow = 'auto';
+          }}
+        />
+      </div>
     )}
 
     <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
